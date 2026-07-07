@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+  <link rel="apple-touch-icon" href="/assets/logo.svg">
+  <title>Painel do Passageiro — Carona</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="accessibility.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="dashboard-page">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="/" class="logo sidebar-logo">
+      <span class="logo-icon">🚗</span>
+      <span class="logo-text">
+        <strong>Carona</strong>
+        <small>Mais barato que ônibus.</small>
+        <small class="logo-tagline">🇧🇷 100% brasileiro</small>
+      </span>
+    </a>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link active" data-panel="solicitar">📍 Solicitar corrida</button>
+      <button class="sidebar-link" data-panel="historico">📋 Minhas corridas</button>
+      <button class="sidebar-link" data-panel="perfil">👤 Meu perfil</button>
+    </nav>
+    <button class="btn btn-logout" id="logoutBtn">🚪 Sair</button>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="dashboard-header">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">☰</button>
+      <div class="header-greeting">
+        <h1>Olá, <span id="userName">Passageiro</span>! 🧳</h1>
+        <p>Pedir corrida nunca foi tão barato — app <strong>100% brasileiro</strong> com taxa de só 5%</p>
+      </div>
+      <div class="header-avatar" id="userAvatar">🧳</div>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <span class="stat-card-icon">🚕</span>
+        <div>
+          <span class="stat-card-value" id="statCorridas">0</span>
+          <span class="stat-card-label">Corridas</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">💰</span>
+        <div>
+          <span class="stat-card-value" id="statGasto">R$ 0</span>
+          <span class="stat-card-label">Total gasto</span>
+        </div>
+      </div>
+      <div class="stat-card highlight">
+        <span class="stat-card-icon">🎉</span>
+        <div>
+          <span class="stat-card-value">5%</span>
+          <span class="stat-card-label">Taxa fixa</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Solicitar -->
+    <section class="panel active" id="panel-solicitar">
+      <div class="panel-grid">
+        <div class="panel-card ride-form-card">
+          <h2>📍 Para onde vamos?</h2>
+          <form id="rideForm">
+            <div class="form-group">
+              <label for="origem">Origem</label>
+              <input type="text" id="origem" name="origem" placeholder="Ex: Av. Paulista, 1000" required>
+            </div>
+            <div class="form-group">
+              <label for="destino">Destino</label>
+              <input type="text" id="destino" name="destino" placeholder="Ex: Shopping Center" required>
+            </div>
+            <button type="button" class="btn btn-secondary" id="estimateBtn">💡 Ver preço estimado</button>
+
+            <div class="estimate-result" id="estimateResult" hidden>
+              <div class="estimate-price">
+                <span class="estimate-label">Preço estimado</span>
+                <span class="estimate-value" id="estimateValue">R$ 0,00</span>
+              </div>
+              <div class="estimate-details">
+                <div><span>Distância</span><strong id="estimateDist">0 km</strong></div>
+                <div><span>Taxa (5%)</span><strong id="estimateTaxa">R$ 0,00</strong></div>
+                <div><span>Economia vs outros apps</span><strong id="estimateEco" class="eco">R$ 0,00</strong></div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-submit">🚀 Confirmar corrida</button>
+            </div>
+            <p class="form-feedback" id="rideFeedback"></p>
+          </form>
+        </div>
+
+        <div class="panel-card active-ride-card" id="activeRideCard" hidden>
+          <h2>🛣️ Corrida ativa</h2>
+          <div id="activeRideContent"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel: Histórico -->
+    <section class="panel" id="panel-historico">
+      <div class="panel-card">
+        <h2>📋 Histórico de corridas</h2>
+        <div class="rides-list" id="ridesList">
+          <p class="empty-state">Nenhuma corrida ainda. Solicite sua primeira! 🚗</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel: Perfil -->
+    <section class="panel" id="panel-perfil">
+      <div class="panel-card">
+        <h2>👤 Meu perfil</h2>
+        <div class="profile-grid" id="profileContent"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/passageiro.js"></script>
+  <script src="js/accessibility.js"></script>
+</body>
+</html>

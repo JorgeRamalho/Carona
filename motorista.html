@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+  <link rel="apple-touch-icon" href="/assets/logo.svg">
+  <title>Painel do Motorista — Carona</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="accessibility.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="dashboard-page">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="/" class="logo sidebar-logo">
+      <span class="logo-icon">🚗</span>
+      <span class="logo-text">
+        <strong>Carona</strong>
+        <small>Mais barato que ônibus.</small>
+        <small class="logo-tagline">🇧🇷 100% brasileiro</small>
+      </span>
+    </a>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link active" data-panel="corridas">🚕 Corridas disponíveis</button>
+      <button class="sidebar-link" data-panel="minhas">📋 Minhas corridas</button>
+      <button class="sidebar-link" data-panel="ganhos">💰 Meus ganhos</button>
+      <button class="sidebar-link" data-panel="perfil">👤 Meu perfil</button>
+    </nav>
+    <button class="btn btn-logout" id="logoutBtn">🚪 Sair</button>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="dashboard-header">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">☰</button>
+      <div class="header-greeting">
+        <h1>Olá, <span id="userName">Motorista</span>! 🚙</h1>
+        <p>App <strong>100% brasileiro</strong> — você fica com <strong>95%</strong> de cada corrida</p>
+      </div>
+      <div class="online-toggle">
+        <span id="onlineLabel">Offline</span>
+        <label class="switch">
+          <input type="checkbox" id="onlineSwitch">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card highlight">
+        <span class="stat-card-icon">💰</span>
+        <div>
+          <span class="stat-card-value" id="statGanhos">R$ 0</span>
+          <span class="stat-card-label">Ganhos totais</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">🚕</span>
+        <div>
+          <span class="stat-card-value" id="statCorridas">0</span>
+          <span class="stat-card-label">Corridas feitas</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">📊</span>
+        <div>
+          <span class="stat-card-value">5%</span>
+          <span class="stat-card-label">Taxa da plataforma</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">🎯</span>
+        <div>
+          <span class="stat-card-value" id="statDisponiveis">0</span>
+          <span class="stat-card-label">Disponíveis agora</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Corridas disponíveis -->
+    <section class="panel active" id="panel-corridas">
+      <div class="panel-card">
+        <h2>🚕 Corridas disponíveis</h2>
+        <p class="panel-desc">Aceite corridas e ganhe 95% do valor. A plataforma fica com apenas 5%.</p>
+        <div class="rides-list" id="availableRides">
+          <p class="empty-state">Nenhuma corrida disponível no momento. Fique online! 📡</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel: Minhas corridas -->
+    <section class="panel" id="panel-minhas">
+      <div class="panel-card">
+        <h2>📋 Minhas corridas</h2>
+        <div class="rides-list" id="myRidesList">
+          <p class="empty-state">Você ainda não aceitou nenhuma corrida.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel: Ganhos -->
+    <section class="panel" id="panel-ganhos">
+      <div class="panel-card earnings-card">
+        <h2>💰 Resumo de ganhos</h2>
+        <div class="earnings-highlight">
+          <span class="earnings-label">Total recebido (95%)</span>
+          <span class="earnings-value" id="earningsTotal">R$ 0,00</span>
+        </div>
+        <div class="earnings-breakdown">
+          <div class="earnings-row">
+            <span>Corridas concluídas</span>
+            <strong id="earningsCount">0</strong>
+          </div>
+          <div class="earnings-row">
+            <span>Taxa paga à plataforma (5%)</span>
+            <strong id="earningsTaxa">R$ 0,00</strong>
+          </div>
+          <div class="earnings-row total">
+            <span>Valor bruto das corridas</span>
+            <strong id="earningsBruto">R$ 0,00</strong>
+          </div>
+        </div>
+        <div class="earnings-comparison">
+          <p>🎉 Com outros apps (25% de taxa), você perderia <strong id="earningsPerdido">R$ 0,00</strong> a mais!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel: Perfil -->
+    <section class="panel" id="panel-perfil">
+      <div class="panel-card">
+        <h2>👤 Meu perfil</h2>
+        <div class="profile-grid" id="profileContent"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/motorista.js"></script>
+  <script src="js/accessibility.js"></script>
+</body>
+</html>

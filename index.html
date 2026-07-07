@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+  <link rel="apple-touch-icon" href="/assets/logo.svg">
+  <meta name="description" content="Carona — App de mobilidade 100% brasileiro. Mais barato que ônibus, taxa de apenas 5%. Cadastre-se como motorista ou passageiro.">
+  <title>Carona — 100% brasileiro. Mais barato que ônibus. 🚗</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="accessibility.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <div class="container header-inner">
+      <a href="/" class="logo" aria-label="Carona - Página inicial">
+        <span class="logo-icon">🚗</span>
+        <span class="logo-text">
+          <strong>Carona</strong>
+          <small>Mais barato que ônibus.</small>
+          <small class="logo-tagline">🇧🇷 100% brasileiro</small>
+        </span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="#diferencial">Diferencial</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#cadastro">Cadastro</a>
+        <a href="/login.html" class="btn btn-secondary btn-nav-login">Entrar</a>
+        <a href="#cadastro" class="btn btn-nav">Começar agora</a>
+      </nav>
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="hero-bg-shapes" aria-hidden="true">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-tags">
+          <div class="hero-tag">🚌 Mais barato que ônibus</div>
+          <div class="hero-tag hero-tag-br">🇧🇷 App 100% brasileiro</div>
+        </div>
+        <h1>
+          Corra pela cidade pagando
+          <span class="highlight-5">só 5%</span>
+          de taxa
+        </h1>
+        <p class="hero-subtitle">
+          Chega de apps que ficam com metade do seu ganho. No <strong>Carona</strong>, app <strong>100% brasileiro</strong>, motoristas e passageiros ganham mais — com preço justo, transparente e divertido de usar. 🎯
+        </p>
+        <div class="hero-cta">
+          <a href="#cadastro-form" class="btn btn-primary" data-tab="passageiro">
+            🧳 Quero ser passageiro
+          </a>
+          <a href="#cadastro-form" class="btn btn-secondary" data-tab="motorista">
+            🚙 Quero ser motorista
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-number">5%</span>
+            <span class="stat-label">Taxa fixa</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Brasileiro</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">24h</span>
+            <span class="stat-label">Suporte ativo</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="phone-mockup">
+          <div class="phone-screen">
+            <div class="app-header">
+              <span>Carona</span>
+              <span>🔔</span>
+            </div>
+            <div class="app-map">
+              <div class="map-pin pin-a">A</div>
+              <div class="map-route"></div>
+              <div class="map-pin pin-b">B</div>
+              <div class="map-car">🚗</div>
+            </div>
+            <div class="app-price-card">
+              <p>Preço estimado</p>
+              <div class="price-row">
+                <span class="price-value">R$ 18,90</span>
+                <span class="price-badge">-5% taxa</span>
+              </div>
+              <p class="price-detail">Você economiza <strong>R$ 4,20</strong> vs. outros apps</p>
+              <button class="app-btn">Confirmar corrida 🚀</button>
+            </div>
+          </div>
+        </div>
+        <div class="floating-card card-1">🇧🇷 100% brasileiro</div>
+        <div class="floating-card card-2">😄 Preço que cabe no bolso</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diferencial -->
+  <section class="section diferencial" id="diferencial">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-emoji">🏆</span>
+        <h2>Por que o <span class="brand">Carona</span> é diferente?</h2>
+        <p>Enquanto outros apps cobram até 25%, o <strong>Carona</strong> — app <strong>100% brasileiro</strong> — fica com apenas <strong>5% de todas as corridas</strong>. Simples assim.</p>
+      </div>
+      <div class="cards-grid">
+        <article class="feature-card card-pop">
+          <div class="feature-icon">💸</div>
+          <h3>Taxa de 5%</h3>
+          <p>Motoristas ficam com 95% do valor. Passageiros pagam menos. Todo mundo ganha.</p>
+        </article>
+        <article class="feature-card card-pop">
+          <div class="feature-icon">🔍</div>
+          <h3>Preço transparente</h3>
+          <p>Veja o valor estimado antes de aceitar. Sem taxas escondidas, sem pegadinhas.</p>
+        </article>
+        <article class="feature-card card-pop">
+          <div class="feature-icon">🇧🇷</div>
+          <h3>100% brasileiro</h3>
+          <p>App feito no Brasil, para brasileiros. Tecnologia nacional com suporte local em português.</p>
+        </article>
+        <article class="feature-card card-pop">
+          <div class="feature-icon">🛡️</div>
+          <h3>Segurança total</h3>
+          <p>Verificação de documentos, avaliações e suporte 24h para sua tranquilidade.</p>
+        </article>
+      </div>
+      <div class="comparison-banner">
+        <div class="comparison-item others">
+          <span class="comparison-label">Outros apps</span>
+          <div class="comparison-bar" style="--width: 75%"></div>
+          <span class="comparison-value">até 25% de taxa 😬</span>
+        </div>
+        <div class="comparison-item ours">
+          <span class="comparison-label">Carona</span>
+          <div class="comparison-bar" style="--width: 5%"></div>
+          <span class="comparison-value">só 5% de taxa 🎉</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Como funciona -->
+  <section class="section como-funciona" id="como-funciona">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-emoji">🗺️</span>
+        <h2>Como funciona?</h2>
+        <p>Em 3 passos você já está na estrada — ou no banco de trás. 😎</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>📱 Baixe e cadastre-se</h3>
+            <p>Crie sua conta como passageiro ou motorista em menos de 2 minutos.</p>
+          </div>
+        </div>
+        <div class="step-connector">→</div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>📍 Informe o destino</h3>
+            <p>Digite de onde e para onde vai. Veja o preço estimado na hora.</p>
+          </div>
+        </div>
+        <div class="step-connector">→</div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>🚀 Bora rodar!</h3>
+            <p>Aceite a corrida, acompanhe em tempo real e avalie a experiência.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cadastro -->
+  <section class="section cadastro" id="cadastro">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-emoji">📝</span>
+        <h2>Faça seu cadastro</h2>
+        <p>Junte-se ao app de mobilidade <strong>100% brasileiro</strong> com taxa justa.</p>
+      </div>
+
+      <div class="cadastro-wrapper" id="cadastro-form">
+        <div class="tabs" role="tablist">
+          <button class="tab active" role="tab" id="tab-passageiro" aria-selected="true" aria-controls="form-passageiro" data-tab="passageiro">
+            🧳 Passageiro
+          </button>
+          <button class="tab" role="tab" id="tab-motorista" aria-selected="false" aria-controls="form-motorista" data-tab="motorista">
+            🚙 Motorista
+          </button>
+        </div>
+
+        <!-- Formulário Passageiro -->
+        <form class="form-cadastro active" id="form-passageiro" role="tabpanel" aria-labelledby="tab-passageiro" novalidate>
+          <div class="form-header">
+            <h3>Cadastro de Passageiro</h3>
+            <p>Preencha seus dados e comece a pedir corridas com preço justo. 🎊</p>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pass-nome">Nome completo *</label>
+              <input type="text" id="pass-nome" name="nome" placeholder="Seu nome completo" required>
+            </div>
+            <div class="form-group">
+              <label for="pass-email">E-mail *</label>
+              <input type="email" id="pass-email" name="email" placeholder="seu@email.com" required>
+            </div>
+            <div class="form-group">
+              <label for="pass-telefone">Telefone / WhatsApp *</label>
+              <input type="tel" id="pass-telefone" name="telefone" placeholder="(00) 00000-0000" required>
+            </div>
+            <div class="form-group">
+              <label for="pass-cpf">CPF *</label>
+              <input type="text" id="pass-cpf" name="cpf" placeholder="000.000.000-00" required>
+            </div>
+            <div class="form-group">
+              <label for="pass-senha">Senha *</label>
+              <input type="password" id="pass-senha" name="senha" placeholder="Mínimo 8 caracteres" required minlength="8">
+            </div>
+            <div class="form-group">
+              <label for="pass-confirmar">Confirmar senha *</label>
+              <input type="password" id="pass-confirmar" name="confirmar_senha" placeholder="Repita a senha" required>
+            </div>
+            <div class="form-group full-width">
+              <label for="pass-cidade">Cidade *</label>
+              <input type="text" id="pass-cidade" name="cidade" placeholder="Sua cidade" required>
+            </div>
+          </div>
+          <div class="form-checkbox">
+            <input type="checkbox" id="pass-termos" name="termos" required>
+            <label for="pass-termos">Li e aceito os <a href="/termos.html" target="_blank">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank">Política de Privacidade</a> *</label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-submit">
+            🎉 Criar conta de passageiro
+          </button>
+          <p class="form-feedback" id="feedback-passageiro" role="status" aria-live="polite"></p>
+        </form>
+
+        <!-- Formulário Motorista -->
+        <form class="form-cadastro" id="form-motorista" role="tabpanel" aria-labelledby="tab-motorista" hidden novalidate>
+          <div class="form-header">
+            <h3>Cadastro de Motorista</h3>
+            <p>Cadastre-se e fique com <strong>95% de cada corrida</strong>. Vamos nessa! 🏁</p>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="mot-nome">Nome completo *</label>
+              <input type="text" id="mot-nome" name="nome" placeholder="Seu nome completo" required>
+            </div>
+            <div class="form-group">
+              <label for="mot-email">E-mail *</label>
+              <input type="email" id="mot-email" name="email" placeholder="seu@email.com" required>
+            </div>
+            <div class="form-group">
+              <label for="mot-telefone">Telefone / WhatsApp *</label>
+              <input type="tel" id="mot-telefone" name="telefone" placeholder="(00) 00000-0000" required>
+            </div>
+            <div class="form-group">
+              <label for="mot-cpf">CPF *</label>
+              <input type="text" id="mot-cpf" name="cpf" placeholder="000.000.000-00" required>
+            </div>
+            <div class="form-group">
+              <label for="mot-cnh">Número da CNH *</label>
+              <input type="text" id="mot-cnh" name="cnh" placeholder="00000000000" required>
+            </div>
+            <div class="form-group">
+              <label for="mot-cnh-cat">Categoria CNH *</label>
+              <select id="mot-cnh-cat" name="cnh_categoria" required>
+                <option value="">Selecione</option>
+                <option value="B">B — Carro</option>
+                <option value="A">A — Moto</option>
+                <option value="AB">AB — Carro e Moto</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="mot-veiculo">Modelo do veículo *</label>
+              <input type="text" id="mot-veiculo" name="veiculo" placeholder="Ex: Fiat Argo 2022" required>
+            </div>
+            <div class="form-group">
+              <label for="mot-placa">Placa *</label>
+              <input type="text" id="mot-placa" name="placa" placeholder="ABC1D23" required>
+            </div>
+            <div class="form-group">
+              <label for="mot-cor">Cor do veículo *</label>
+              <input type="text" id="mot-cor" name="cor" placeholder="Ex: Prata" required>
+            </div>
+            <div class="form-group">
+              <label for="mot-ano">Ano do veículo *</label>
+              <input type="number" id="mot-ano" name="ano" placeholder="2022" min="2000" max="2026" required>
+            </div>
+            <div class="form-group">
+              <label for="mot-senha">Senha *</label>
+              <input type="password" id="mot-senha" name="senha" placeholder="Mínimo 8 caracteres" required minlength="8">
+            </div>
+            <div class="form-group">
+              <label for="mot-confirmar">Confirmar senha *</label>
+              <input type="password" id="mot-confirmar" name="confirmar_senha" placeholder="Repita a senha" required>
+            </div>
+            <div class="form-group full-width">
+              <label for="mot-cidade">Cidade de atuação *</label>
+              <input type="text" id="mot-cidade" name="cidade" placeholder="Cidade onde você vai rodar" required>
+            </div>
+          </div>
+          <div class="form-checkbox">
+            <input type="checkbox" id="mot-termos" name="termos" required>
+            <label for="mot-termos">Li e aceito os <a href="/termos.html" target="_blank">Termos de Uso</a>, a <a href="/privacidade.html" target="_blank">Política de Privacidade</a> e confirmo que possuo documentação válida *</label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-submit">
+            🏁 Criar conta de motorista
+          </button>
+          <p class="form-feedback" id="feedback-motorista" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Final -->
+  <section class="cta-final">
+    <div class="container cta-inner">
+      <div class="cta-content">
+        <h2>Pronto pra mudar a forma de se mover? 🌟</h2>
+        <p>Experimente o app <strong>100% brasileiro</strong> com taxa de apenas 5% — mais barato que ônibus.</p>
+      </div>
+      <a href="#cadastro" class="btn btn-primary btn-cta">Cadastre-se grátis</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="logo">
+          <span class="logo-icon">🚗</span>
+          <span class="logo-text">
+            <strong>Carona</strong>
+            <small>Mais barato que ônibus.</small>
+            <small class="logo-tagline">🇧🇷 100% brasileiro</small>
+          </span>
+        </a>
+        <p>App de mobilidade <strong>100% brasileiro</strong> — justo, divertido e transparente para motoristas e passageiros em todo o Brasil.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Links</h4>
+        <a href="#diferencial">Diferencial</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#cadastro">Cadastro</a>
+        <a href="/login.html">Entrar</a>
+        <a href="/termos.html">Termos de Uso</a>
+        <a href="/privacidade.html">Privacidade</a>
+      </div>
+      <div class="footer-links">
+        <h4>Contato</h4>
+        <a href="mailto:contato@carona.com.br">📧 contato@carona.com.br</a>
+        <a href="tel:+5508001234567">📞 0800 123 4567</a>
+      </div>
+      <div class="footer-social">
+        <h4>Redes sociais</h4>
+        <div class="social-icons">
+          <a href="#" aria-label="Instagram">📸</a>
+          <a href="#" aria-label="Facebook">👍</a>
+          <a href="#" aria-label="Twitter">🐦</a>
+          <a href="#" aria-label="LinkedIn">💼</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>© 2026 Carona. Todos os direitos reservados. Feito com 💜 e taxa de só 5%.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="script.js"></script>
+  <script src="js/accessibility.js"></script>
+</body>
+</html>
