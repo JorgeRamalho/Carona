@@ -22,6 +22,15 @@ function formatDate(iso) {
   });
 }
 
+function formatDuration(seconds) {
+  if (!seconds && seconds !== 0) return '—';
+  const total = Math.max(0, Math.round(seconds));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.round((total % 3600) / 60);
+  if (hours > 0) return `${hours} h ${minutes} min`;
+  return `${Math.max(minutes, 1)} min`;
+}
+
 function formatInput(e) {
   const input = e.target;
   let value = input.value;
@@ -96,4 +105,4 @@ function validateDriverForm(form) {
   return errors;
 }
 
-window.utils = { isValidEmail, isValidCPF, isValidPlaca, formatCurrency, formatDate, formatInput, clearErrors, showFeedback, statusBadge, validatePassengerForm, validateDriverForm };
+window.utils = { isValidEmail, isValidCPF, isValidPlaca, formatCurrency, formatDate, formatDuration, formatInput, clearErrors, showFeedback, statusBadge, validatePassengerForm, validateDriverForm };

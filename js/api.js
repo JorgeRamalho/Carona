@@ -1,15 +1,65 @@
-const API_BASE = '';
+function getApiBase() {
+  const { protocol, hostname, port } = window.location;
+
+  if (protocol === 'file:') {
+    return 'http://localhost:3000';
+  }
+
+  const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+  const isNodeServer = port === '3000' || (isLocal && port === '');
+
+  if (isLocal && !isNodeServer) {
+    return 'http://localhost:3000';
+  }
+
+  return '';
+}
+
+const API_BASE = getApiBase();
+
+function resolveAppUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  const origin = API_BASE || window.location.origin;
+  return `${origin}${path}`;
+}
+
+function getRequestError(res, data) {
+  if (data.error) return data.error;
+  if (res.status === 404 || res.status === 405) {
+    return 'Servidor da API não encontrado. Execute "npm start" e acesse http://localhost:3000';
+  }
+  if (res.status === 409) {
+    return 'Este e-mail já está cadastrado. Faça login ou use outro e-mail.';
+  }
+  return `Não foi possível completar a operação (código ${res.status}). Verifique se o servidor está rodando com "npm start".`;
+}
 
 const api = {
+  getBase() {
+    return API_BASE || window.location.origin;
+  },
+
+  resolveUrl(path) {
+    return resolveAppUrl(path);
+  },
   async request(endpoint, options = {}) {
     const token = localStorage.getItem('carona_token');
     const headers = { 'Content-Type': 'application/json', ...options.headers };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+    let res;
+    try {
+      res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+    } catch {
+      throw new Error(
+        'Não foi possível conectar ao servidor. Execute "npm start" na pasta do projeto e acesse http://localhost:3000'
+      );
+    }
+
     const data = await res.json().catch(() => ({}));
 
-    if (!res.ok) throw new Error(data.error || 'Erro na requisição.');
+    if (!res.ok) throw new Error(getRequestError(res, data));
     return data;
   },
 
@@ -23,6 +73,14 @@ const api = {
 
   login(email, senha) {
     return this.request('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, senha }) });
+  },
+
+  forgotPassword(email) {
+    return this.request('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) });
+  },
+
+  resetPassword(token, senha) {
+    return this.request('/api/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, senha }) });
   },
 
   getMe() {
@@ -40,8 +98,11 @@ const api = {
     return this.request('/api/rides/estimate', { method: 'POST', body: JSON.stringify({ origem, destino }) });
   },
 
-  createRide(origem, destino) {
-    return this.request('/api/rides', { method: 'POST', body: JSON.stringify({ origem, destino }) });
+  createRide(origem, destino, pagamento) {
+    return this.request('/api/rides', {
+      method: 'POST',
+      body: JSON.stringify({ origem, destino, pagamento })
+    });
   },
 
   getRides() {
@@ -56,8 +117,18 @@ const api = {
     return this.request(`/api/rides/${id}/start`, { method: 'PATCH' });
   },
 
-  completeRide(id, avaliacao) {
-    return this.request(`/api/rides/${id}/complete`, { method: 'PATCH', body: JSON.stringify({ avaliacao }) });
+  completeRide(id, avaliacaoPassageiro) {
+    return this.request(`/api/rides/${id}/complete`, {
+      method: 'PATCH',
+      body: JSON.stringify({ avaliacaoPassageiro })
+    });
+  },
+
+  rateRide(id, avaliacao) {
+    return this.request(`/api/rides/${id}/rate`, {
+      method: 'PATCH',
+      body: JSON.stringify({ avaliacao })
+    });
   },
 
   cancelRide(id) {
@@ -70,6 +141,10 @@ const api = {
 
   getStats() {
     return this.request('/api/stats');
+  },
+
+  getMapsConfig() {
+    return this.request('/api/maps/config');
   }
 };
 

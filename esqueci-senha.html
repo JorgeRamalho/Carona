@@ -2,14 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#22C55E">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Carona">
-  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
-  <link rel="apple-touch-icon" href="/assets/icon-192.png">
-  <title>Entrar — Carona</title>
+  <link rel="apple-touch-icon" href="/assets/logo.svg">
+  <title>Esqueci minha senha — Carona</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -31,34 +27,27 @@
 
     <div class="auth-card">
       <div class="auth-header">
-        <span class="auth-emoji">👋</span>
-        <h1>Bem-vindo de volta!</h1>
-        <p>Entre na sua conta para continuar</p>
+        <span class="auth-emoji">🔑</span>
+        <h1>Esqueceu sua senha?</h1>
+        <p>Informe seu e-mail e enviaremos instruções para redefinir sua senha</p>
       </div>
 
-      <form id="loginForm" novalidate>
+      <form id="forgotForm" novalidate>
         <div class="form-group">
           <label for="email">E-mail</label>
           <input type="email" id="email" name="email" placeholder="seu@email.com" required autocomplete="email">
         </div>
-        <div class="form-group">
-          <label for="senha">Senha</label>
-          <input type="password" id="senha" name="senha" placeholder="Sua senha" required autocomplete="current-password">
-        </div>
-        <p class="auth-forgot-link">
-          <a href="esqueci-senha.html">Esqueci minha senha</a>
-        </p>
-        <button type="submit" class="btn btn-primary btn-submit" id="loginBtn">
-          🚀 Entrar
+        <button type="submit" class="btn btn-primary btn-submit" id="forgotBtn">
+          📧 Enviar link de redefinição
         </button>
-        <p class="form-feedback" id="loginFeedback" role="status"></p>
+        <p class="form-feedback" id="forgotFeedback" role="status"></p>
+        <div class="auth-reset-hint" id="resetHint" hidden>
+          <p>Como ainda não temos envio de e-mail configurado, use o link abaixo:</p>
+          <p><a href="#" id="resetLink"></a></p>
+        </div>
       </form>
 
-      <div class="auth-divider"><span>ou</span></div>
-
-      <p class="auth-footer-text">
-        Ainda não tem conta? <a href="/?tab=passageiro#cadastro-form">Cadastre-se grátis</a>
-      </p>
+      <a href="login.html" class="auth-back-link">← Voltar para o login</a>
     </div>
 
     <div class="auth-features">
@@ -68,11 +57,9 @@
     </div>
   </div>
 
-  <script src="js/api.js?v=4"></script>
-  <script src="js/auth.js"></script>
+  <script src="js/api.js?v=2"></script>
   <script src="js/utils.js"></script>
-  <script src="js/login.js"></script>
-  <script src="js/pwa.js?v=1"></script>
+  <script src="js/esqueci-senha.js"></script>
   <script src="js/accessibility.js"></script>
 </body>
 </html>

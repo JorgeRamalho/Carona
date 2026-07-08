@@ -2,9 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#22C55E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Carona">
+  <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
-  <link rel="apple-touch-icon" href="/assets/logo.svg">
+  <link rel="apple-touch-icon" href="/assets/icon-192.png">
   <title>Painel do Motorista — Carona</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,6 +35,7 @@
       <button class="sidebar-link" data-panel="ganhos">💰 Meus ganhos</button>
       <button class="sidebar-link" data-panel="perfil">👤 Meu perfil</button>
     </nav>
+    <button type="button" class="btn btn-secondary btn-install" data-pwa-install hidden>📲 Instalar app</button>
     <button class="btn btn-logout" id="logoutBtn">🚪 Sair</button>
   </aside>
 
@@ -94,6 +100,12 @@
 
     <!-- Panel: Minhas corridas -->
     <section class="panel" id="panel-minhas">
+      <div class="panel-card map-card" id="driverRouteCard" hidden>
+        <h2>🗺️ Melhor rota — Google Maps</h2>
+        <p class="panel-desc" id="driverRouteInfo"></p>
+        <div id="driverRouteMap" class="route-map"></div>
+        <div class="map-actions" id="driverRouteActions"></div>
+      </div>
       <div class="panel-card">
         <h2>📋 Minhas corridas</h2>
         <div class="rides-list" id="myRidesList">
@@ -139,11 +151,60 @@
     </section>
   </main>
 
-  <script src="js/api.js"></script>
+  <div class="estimate-modal" id="offerModal" hidden aria-hidden="true">
+    <div class="estimate-modal-backdrop" id="offerModalBackdrop"></div>
+    <div class="estimate-modal-window offer-modal-window" role="dialog" aria-labelledby="offerModalTitle" aria-modal="true">
+      <header class="estimate-modal-header">
+        <div>
+          <h2 id="offerModalTitle">🚕 Oferta de corrida</h2>
+          <p>Passageiro solicitou — aceite para fazer o matching</p>
+        </div>
+      </header>
+      <div class="estimate-modal-map-wrap">
+        <div id="offerModalMap" class="route-map estimate-modal-map"></div>
+      </div>
+      <div class="estimate-modal-body" id="offerModalBody"></div>
+      <footer class="estimate-modal-footer">
+        <button type="button" class="btn btn-danger" id="declineOfferBtn">⏭️ Recusar</button>
+        <button type="button" class="btn btn-primary" id="acceptOfferBtn">✅ Aceitar corrida</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="estimate-modal rating-modal" id="ratingModal" hidden aria-hidden="true">
+    <div class="estimate-modal-backdrop" id="ratingModalBackdrop"></div>
+    <div class="estimate-modal-window rating-modal-window" role="dialog" aria-labelledby="ratingModalTitle" aria-modal="true">
+      <header class="estimate-modal-header">
+        <div>
+          <h2 id="ratingModalTitle">⭐ Avaliar passageiro</h2>
+          <p>Como foi a corrida com <strong id="ratingPassengerName">Passageiro</strong>?</p>
+        </div>
+        <button type="button" class="estimate-modal-close" id="closeRatingModal" aria-label="Fechar">×</button>
+      </header>
+      <div class="estimate-modal-body rating-modal-body">
+        <input type="hidden" id="ratingValue" value="5">
+        <div class="rating-stars" id="ratingStars">
+          <button type="button" data-value="1" class="active">⭐</button>
+          <button type="button" data-value="2" class="active">⭐</button>
+          <button type="button" data-value="3" class="active">⭐</button>
+          <button type="button" data-value="4" class="active">⭐</button>
+          <button type="button" data-value="5" class="active">⭐</button>
+        </div>
+      </div>
+      <footer class="estimate-modal-footer">
+        <button type="button" class="btn btn-secondary" id="skipRatingBtn">Agora não</button>
+        <button type="button" class="btn btn-primary" id="submitRatingBtn">Enviar avaliação</button>
+      </footer>
+    </div>
+  </div>
+
+  <script src="js/api.js?v=4"></script>
   <script src="js/auth.js"></script>
   <script src="js/utils.js"></script>
+  <script src="js/maps.js?v=4"></script>
   <script src="js/profile.js"></script>
-  <script src="js/motorista.js"></script>
-  <script src="js/accessibility.js"></script>
+  <script src="js/pwa.js?v=1"></script>
+  <script src="js/motorista.js?v=5"></script>
+  <script src="js/accessibility.js?v=2"></script>
 </body>
 </html>

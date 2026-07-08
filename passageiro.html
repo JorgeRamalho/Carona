@@ -2,9 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#22C55E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Carona">
+  <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
-  <link rel="apple-touch-icon" href="/assets/logo.svg">
+  <link rel="apple-touch-icon" href="/assets/icon-192.png">
   <title>Painel do Passageiro — Carona</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +34,7 @@
       <button class="sidebar-link" data-panel="historico">📋 Minhas corridas</button>
       <button class="sidebar-link" data-panel="perfil">👤 Meu perfil</button>
     </nav>
+    <button type="button" class="btn btn-secondary btn-install" data-pwa-install hidden>📲 Instalar app</button>
     <button class="btn btn-logout" id="logoutBtn">🚪 Sair</button>
   </aside>
 
@@ -81,7 +87,21 @@
               <label for="destino">Destino</label>
               <input type="text" id="destino" name="destino" placeholder="Ex: Shopping Center" required>
             </div>
-            <button type="button" class="btn btn-secondary" id="estimateBtn">💡 Ver preço estimado</button>
+            <div class="form-group">
+              <label for="pagamento">Forma de pagamento</label>
+              <select id="pagamento" name="pagamento" required>
+                <option value="pix">Pix</option>
+                <option value="dinheiro">Dinheiro</option>
+                <option value="cartao">Cartão</option>
+              </select>
+            </div>
+            <div class="ride-form-actions">
+              <button type="button" class="btn btn-price" id="estimateBtn">💰 Preço</button>
+              <button type="button" class="btn btn-secondary" id="clearRideFormBtn">🧹 Limpar</button>
+            </div>
+            <div class="ride-home-wrap">
+              <a href="/" class="btn btn-home-plain" id="rideHomeBtn">🏠 Home</a>
+            </div>
 
             <div class="estimate-result" id="estimateResult" hidden>
               <div class="estimate-price">
@@ -90,13 +110,22 @@
               </div>
               <div class="estimate-details">
                 <div><span>Distância</span><strong id="estimateDist">0 km</strong></div>
-                <div><span>Taxa (5%)</span><strong id="estimateTaxa">R$ 0,00</strong></div>
-                <div><span>Economia vs outros apps</span><strong id="estimateEco" class="eco">R$ 0,00</strong></div>
+                <div><span>Tempo estimado</span><strong id="estimateDuration">—</strong></div>
+                <div><span>Valor por km</span><strong id="estimatePerKm">R$ 2,00</strong></div>
+                <div><span>Taxa plataforma (5%)</span><strong id="estimateTaxa">R$ 0,00</strong></div>
+                <div><span>Fonte da rota</span><strong id="estimateSource">Google Maps</strong></div>
               </div>
               <button type="submit" class="btn btn-primary btn-submit">🚀 Confirmar corrida</button>
             </div>
             <p class="form-feedback" id="rideFeedback"></p>
           </form>
+        </div>
+
+        <div class="panel-card map-card">
+          <h2>🗺️ Rota no Google Maps</h2>
+          <p class="panel-desc">Melhor caminho, distância real e tempo estimado de viagem.</p>
+          <div id="routeMap" class="route-map" hidden></div>
+          <p class="map-placeholder" id="mapPlaceholder">Informe origem e destino e clique em "Preço".</p>
         </div>
 
         <div class="panel-card active-ride-card" id="activeRideCard" hidden>
@@ -125,11 +154,61 @@
     </section>
   </main>
 
-  <script src="js/api.js"></script>
+  <div class="estimate-modal" id="estimateModal" hidden aria-hidden="true">
+    <div class="estimate-modal-backdrop" id="estimateModalBackdrop"></div>
+    <div class="estimate-modal-window" role="dialog" aria-labelledby="estimateModalTitle" aria-modal="true">
+      <header class="estimate-modal-header">
+        <div>
+          <h2 id="estimateModalTitle">🗺️ Resumo da corrida</h2>
+          <p>Trajeto calculado pelo Google Maps</p>
+        </div>
+        <button type="button" class="estimate-modal-close" id="closeEstimateModal" aria-label="Fechar">×</button>
+      </header>
+      <div class="estimate-modal-map-wrap">
+        <div id="estimateModalMap" class="route-map estimate-modal-map"></div>
+      </div>
+      <div class="estimate-modal-body" id="estimateModalBody"></div>
+      <footer class="estimate-modal-footer">
+        <button type="button" class="btn btn-danger" id="cancelFromModal">❌ Cancelar corrida</button>
+        <button type="button" class="btn btn-primary" id="confirmFromModal">🚀 Confirmar corrida</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="estimate-modal rating-modal" id="ratingModal" hidden aria-hidden="true">
+    <div class="estimate-modal-backdrop" id="ratingModalBackdrop"></div>
+    <div class="estimate-modal-window rating-modal-window" role="dialog" aria-labelledby="ratingModalTitle" aria-modal="true">
+      <header class="estimate-modal-header">
+        <div>
+          <h2 id="ratingModalTitle">⭐ Avaliar motorista</h2>
+          <p>Como foi a corrida com <strong id="ratingDriverName">Motorista</strong>?</p>
+        </div>
+        <button type="button" class="estimate-modal-close" id="closeRatingModal" aria-label="Fechar">×</button>
+      </header>
+      <div class="estimate-modal-body rating-modal-body">
+        <input type="hidden" id="ratingValue" value="5">
+        <div class="rating-stars" id="ratingStars">
+          <button type="button" data-value="1" class="active">⭐</button>
+          <button type="button" data-value="2" class="active">⭐</button>
+          <button type="button" data-value="3" class="active">⭐</button>
+          <button type="button" data-value="4" class="active">⭐</button>
+          <button type="button" data-value="5" class="active">⭐</button>
+        </div>
+      </div>
+      <footer class="estimate-modal-footer">
+        <button type="button" class="btn btn-secondary" id="skipRatingBtn">Agora não</button>
+        <button type="button" class="btn btn-primary" id="submitRatingBtn">Enviar avaliação</button>
+      </footer>
+    </div>
+  </div>
+
+  <script src="js/api.js?v=4"></script>
   <script src="js/auth.js"></script>
   <script src="js/utils.js"></script>
+  <script src="js/maps.js?v=4"></script>
   <script src="js/profile.js"></script>
-  <script src="js/passageiro.js"></script>
-  <script src="js/accessibility.js"></script>
+  <script src="js/pwa.js?v=1"></script>
+  <script src="js/passageiro.js?v=10"></script>
+  <script src="js/accessibility.js?v=2"></script>
 </body>
 </html>
