@@ -14,11 +14,60 @@ document.addEventListener('DOMContentLoaded', () => {
   initForms();
   initHeroCTA();
   initCadastroFromUrl();
+  initInstallQr();
+  initLandingRideHub();
 });
+
+function initLandingRideHub() {
+  const select = document.getElementById('landing-pagamento');
+  const chips = document.querySelectorAll('#pedir-corrida .pay-chip');
+  if (!select || !chips.length) return;
+
+  const sync = () => {
+    chips.forEach((chip) => {
+      chip.classList.toggle('is-active', chip.dataset.pay === select.value);
+    });
+  };
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      select.value = chip.dataset.pay;
+      sync();
+    });
+  });
+
+  select.addEventListener('change', sync);
+  sync();
+}
+
+async function initInstallQr() {
+  const label = document.getElementById('qrInstallUrlLabel');
+  const img = document.getElementById('qrInstallImage');
+  if (!label && !img) return;
+
+  try {
+    const res = await fetch('/api/install-url');
+    const data = await res.json();
+    if (label && data.url) {
+      label.innerHTML = `Link: <a href="${data.url}">${data.url}</a>`;
+    }
+    if (img) {
+      img.src = `/api/qr-install.png?t=${Date.now()}`;
+    }
+  } catch {
+    if (label) {
+      const fallback = `${window.location.origin}/instalar.html`;
+      label.innerHTML = `Link: <a href="${fallback}">${fallback}</a>`;
+    }
+  }
+}
 
 function updateHeaderForLoggedUser(user) {
   const nav = document.getElementById('nav');
-  const dashboardUrl = user.tipo === 'motorista' ? '/motorista.html' : '/passageiro.html';
+  // Passageiro vai direto para "Para onde vamos"; motorista para o painel de corridas
+  const dashboardUrl = user.tipo === 'motorista'
+    ? '/motorista.html#corridas'
+    : '/passageiro.html#solicitar';
   const loginBtn = nav.querySelector('.btn-nav-login');
   if (loginBtn) {
     loginBtn.href = dashboardUrl;
@@ -45,7 +94,7 @@ function initMobileMenu() {
     toggle.setAttribute('aria-expanded', isOpen);
   });
 
-  nav.querySelectorAll('a').forEach(link => {
+  nav.querySelectorAll('a, button').forEach(link => {
     link.addEventListener('click', () => {
       nav.classList.remove('open');
       toggle.classList.remove('active');

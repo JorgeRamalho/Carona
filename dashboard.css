@@ -214,15 +214,15 @@
 .dashboard-main {
   flex: 1;
   margin-left: 260px;
-  padding: 32px;
-  max-width: 1100px;
+  padding: 24px 28px 40px;
+  max-width: 1280px;
 }
 
 .dashboard-header {
   display: flex;
   align-items: center;
   gap: 20px;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .sidebar-toggle {
@@ -327,8 +327,8 @@
 .stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 .stat-card {
@@ -410,33 +410,127 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
+  align-items: start;
 }
 
-/* --- RIDE FORM --- */
+/* --- RIDE HUB (pedido de corrida) --- */
 
-.ride-form-card .form-group {
+.ride-hub {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(340px, 1.05fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.ride-hub-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 100%;
+}
+
+.ride-hub .active-ride-card {
+  grid-column: 1 / -1;
+}
+
+.ride-info-band {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.ride-form-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ride-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.ride-form-header {
   margin-bottom: 16px;
 }
 
-.ride-form-actions {
+.ride-form-header h2 {
+  margin-bottom: 6px;
+}
+
+.ride-form-header .panel-desc {
+  margin-bottom: 0;
+}
+
+.ride-form-fields {
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-top: 8px;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ride-form-card .form-group {
+  margin-bottom: 12px;
+}
+
+.ride-form-card .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.pay-chips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 14px 0 4px;
+}
+
+.pay-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  border: 2px solid var(--gray-200);
+  background: var(--gray-100);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--gray-600, #4b5563);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+  user-select: none;
+}
+
+.pay-chip.is-active {
+  border-color: var(--purple-main);
+  background: #ECFDF5;
+  color: var(--dark);
+}
+
+.ride-form-actions {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
   align-items: stretch;
 }
 
 .ride-form-actions .btn {
-  flex: 1;
-  min-width: 140px;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 14px;
+  font-size: 0.95rem;
 }
 
 .ride-form-actions .btn-price {
-  flex: 1.35;
-  min-width: 170px;
-  min-height: 54px;
-  padding: 14px 22px;
-  font-size: 1.05rem;
+  min-height: 48px;
+  padding: 12px 14px;
+  font-size: 0.98rem;
   font-weight: 800;
   color: var(--white);
   background: linear-gradient(135deg, var(--purple-main), var(--coral));
@@ -455,9 +549,7 @@
 }
 
 .ride-home-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
+  display: none;
 }
 
 .btn-home-plain {
@@ -465,7 +557,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-width: 140px;
+  min-width: 0;
   text-decoration: none;
   color: var(--dark);
   background: var(--white);
@@ -477,6 +569,392 @@
   color: var(--dark);
   background: var(--gray-100);
   border-color: var(--gray-200);
+}
+
+.ride-quick-tips {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid var(--gray-200);
+}
+
+.ride-quick-tips h3 {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  margin-bottom: 8px;
+  color: var(--dark);
+}
+
+.ride-quick-tips ol {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--gray-600, #4b5563);
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.map-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 320px;
+}
+
+.map-card-head .panel-desc {
+  margin-bottom: 12px;
+}
+
+.map-card .route-map,
+.map-card .map-placeholder {
+  flex: 1;
+  min-height: 220px;
+}
+
+.route-map {
+  width: 100%;
+  height: 280px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--purple-light);
+  overflow: hidden;
+  background: var(--gray-100);
+}
+
+.map-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--gray-500);
+  padding: 28px 20px;
+  background:
+    linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(250, 204, 21, 0.08)),
+    var(--gray-100);
+  border-radius: var(--radius-md);
+  border: 2px dashed rgba(34, 197, 94, 0.35);
+}
+
+.map-empty-state {
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-empty-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.map-empty-state strong {
+  color: var(--dark);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.map-empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.ride-guide-card h3,
+.ride-news-card h3,
+.ride-pay-card h3,
+.ride-flow-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+
+.ride-guide-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ride-guide-grid article {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+}
+
+.ride-guide-grid article > span {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.ride-guide-grid strong {
+  display: block;
+  font-size: 0.88rem;
+  margin-bottom: 2px;
+  color: var(--dark);
+}
+
+.ride-guide-grid p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--gray-500);
+}
+
+.ride-news-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ride-news-list li {
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #F0FDF4, #FFFFFF);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.ride-news-list strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+
+.ride-news-list p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--gray-500);
+}
+
+.ride-pay-card .panel-desc {
+  margin-bottom: 14px;
+  font-size: 0.88rem;
+}
+
+.ride-pay-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ride-pay-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  padding: 14px 8px;
+  border-radius: 12px;
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+}
+
+.ride-pay-item span {
+  font-size: 1.35rem;
+}
+
+.ride-pay-item strong {
+  font-size: 0.88rem;
+  color: var(--dark);
+}
+
+.ride-pay-item small {
+  font-size: 0.72rem;
+  color: var(--gray-500);
+}
+
+.ride-pay-note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  line-height: 1.35;
+}
+
+.ride-flow-steps {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--gray-600, #4b5563);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.ride-flow-steps strong {
+  color: var(--dark);
+}
+
+/* --- INSIGHTS / CHARTS --- */
+
+.insights-header {
+  margin-bottom: 20px;
+}
+
+.insights-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--dark);
+  margin-bottom: 6px;
+}
+
+.insights-header p {
+  color: var(--gray-500);
+  font-size: 0.95rem;
+}
+
+.insights-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.insights-kpi {
+  background: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+}
+
+.insights-kpi-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.insights-kpi strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--dark);
+}
+
+.insights-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.chart-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+
+.chart-card .panel-desc {
+  margin-bottom: 18px;
+  font-size: 0.88rem;
+}
+
+.chart-pie-wrap {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+.chart-pie {
+  width: 180px;
+  height: 180px;
+}
+
+.chart-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--gray-700, #374151);
+}
+
+.chart-legend em {
+  color: var(--gray-500);
+  font-style: normal;
+  font-size: 0.82rem;
+}
+
+.chart-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.chart-bars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: end;
+  min-height: 220px;
+  padding-top: 8px;
+}
+
+.chart-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  min-height: 200px;
+}
+
+.chart-bar-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gray-600, #4b5563);
+  text-align: center;
+  line-height: 1.2;
+  min-height: 2.2em;
+}
+
+.chart-bar-track {
+  flex: 1;
+  width: 100%;
+  max-width: 48px;
+  background: var(--gray-100);
+  border-radius: 10px 10px 6px 6px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.chart-bar-fill {
+  width: 100%;
+  border-radius: 10px 10px 4px 4px;
+  min-height: 6px;
+  transition: height 0.45s ease;
+}
+
+.chart-bar-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gray-500);
+  text-align: center;
 }
 
 .estimate-result {
@@ -512,28 +990,6 @@
   gap: 12px;
   margin-bottom: 20px;
   text-align: center;
-}
-
-.route-map {
-  width: 100%;
-  height: 360px;
-  border-radius: var(--radius-md);
-  border: 2px solid var(--purple-light);
-  overflow: hidden;
-  background: var(--gray-100);
-}
-
-.map-card .panel-desc {
-  margin-bottom: 16px;
-}
-
-.map-placeholder {
-  text-align: center;
-  color: var(--gray-500);
-  padding: 48px 16px;
-  background: var(--gray-100);
-  border-radius: var(--radius-md);
-  border: 2px dashed var(--gray-200);
 }
 
 .map-actions {
@@ -928,6 +1384,15 @@
 .btn-install {
   width: 100%;
   margin-bottom: 8px;
+}
+
+.auth-card [data-pwa-install] {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.install-page .install-steps {
+  margin-top: 20px;
 }
 
 .rating-modal-window {
@@ -1411,6 +1876,22 @@
     grid-template-columns: 1fr;
   }
 
+  .ride-hub {
+    grid-template-columns: 1fr;
+  }
+
+  .ride-info-band {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-kpi-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .estimate-details {
     grid-template-columns: 1fr;
   }
@@ -1434,6 +1915,41 @@
     display: block;
   }
 
+  .ride-form-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .ride-guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ride-pay-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pay-chips {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-pie-wrap {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: left;
+  }
+
+  .chart-legend {
+    width: 100%;
+  }
+
+  .insights-kpi-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .chart-bars {
+    grid-template-columns: repeat(2, 1fr);
+    min-height: 280px;
+  }
+
   .profile-readonly,
   .profile-form-grid {
     grid-template-columns: 1fr;
@@ -1445,5 +1961,15 @@
 
   .legal-content {
     padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .insights-kpi-row {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
   }
 }

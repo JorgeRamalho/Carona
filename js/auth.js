@@ -42,7 +42,9 @@ const auth = {
   redirectByRole() {
     const user = this.getUser();
     if (!user) return (window.location.href = '/login.html');
-    window.location.href = user.tipo === 'motorista' ? '/motorista.html' : '/passageiro.html';
+    window.location.href = user.tipo === 'motorista'
+      ? '/motorista.html#corridas'
+      : '/passageiro.html#solicitar';
   }
 };
 

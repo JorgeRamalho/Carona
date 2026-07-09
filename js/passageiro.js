@@ -39,10 +39,37 @@ function initDashboard() {
   document.getElementById('estimateBtn').addEventListener('click', handleEstimate);
   document.getElementById('clearRideFormBtn').addEventListener('click', clearRideForm);
   document.getElementById('rideForm').addEventListener('submit', handleCreateRide);
+  initPayChips();
+
+  const hashPanel = (window.location.hash || '').replace('#', '');
+  const validPanels = ['solicitar', 'insights', 'historico', 'perfil'];
+  switchPanel(validPanels.includes(hashPanel) ? hashPanel : 'solicitar');
 
   loadStats();
   loadRides();
   pollInterval = setInterval(loadRides, 3000);
+}
+
+function initPayChips() {
+  const select = document.getElementById('pagamento');
+  const chips = document.querySelectorAll('.pay-chip');
+  if (!select || !chips.length) return;
+
+  const sync = () => {
+    chips.forEach((chip) => {
+      chip.classList.toggle('is-active', chip.dataset.pay === select.value);
+    });
+  };
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      select.value = chip.dataset.pay;
+      sync();
+    });
+  });
+
+  select.addEventListener('change', sync);
+  sync();
 }
 
 function initEstimateModal() {
@@ -197,10 +224,17 @@ function switchPanel(panel) {
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === `panel-${panel}`));
   document.getElementById('sidebar').classList.remove('open');
   if (panel === 'perfil') loadPassageiroProfile();
+  if (panel === 'insights') loadStats();
+  if (window.location.hash.replace('#', '') !== panel) {
+    history.replaceState(null, '', `#${panel}`);
+  }
+  if (panel === 'solicitar') {
+    requestAnimationFrame(() => document.getElementById('origem')?.focus());
+  }
 }
 
 function loadPassageiroProfile() {
-  loadProfilePanel(
+  loadProfileContent(
     (user) => `<div class="profile-field"><label>CPF</label><span>${user.cpf || '—'}</span></div>`,
     '🧳 Passageiro'
   );
@@ -209,9 +243,145 @@ function loadPassageiroProfile() {
 async function loadStats() {
   try {
     const stats = await api.getStats();
-    document.getElementById('statCorridas').textContent = stats.concluidas;
-    document.getElementById('statGasto').textContent = formatCurrency(stats.totalGasto);
+    const setText = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    };
+
+    setText('statCorridas', stats.concluidas ?? 0);
+    setText('statCanceladas', stats.canceladas ?? 0);
+    setText('statGasto', formatCurrency(stats.totalGasto || 0));
+    setText('statCashback', formatCurrency(stats.cashback || 0));
+
+    setText('kpiCredito', formatCurrency(stats.credito || 0));
+    setText('kpiSaldo', formatCurrency(stats.dinheiroConta || 0));
+    setText('kpiCashback', formatCurrency(stats.cashback || 0));
+    setText('kpiEconomia', formatCurrency(stats.economia || 0));
+
+    renderPassengerCharts(stats);
   } catch { /* silent */ }
+}
+
+const CHART_COLORS = {
+  finalizadas: '#22C55E',
+  canceladas: '#EF4444',
+  aguardando: '#F59E0B',
+  emAndamento: '#3B82F6',
+  pix: '#10B981',
+  dinheiro: '#6366F1',
+  cartao: '#F97316',
+  gasto: '#0B1220',
+  cashback: '#22C55E',
+  credito: '#8B5CF6',
+  saldo: '#06B6D4'
+};
+
+function renderPassengerCharts(stats) {
+  const fluxo = stats.fluxoUso || {
+    finalizadas: stats.concluidas || 0,
+    canceladas: stats.canceladas || 0,
+    aguardando: stats.aguardando || 0,
+    emAndamento: stats.emAndamento || 0
+  };
+
+  const fluxoSlices = [
+    { key: 'finalizadas', label: 'Finalizadas', value: fluxo.finalizadas || 0, color: CHART_COLORS.finalizadas },
+    { key: 'canceladas', label: 'Canceladas', value: fluxo.canceladas || 0, color: CHART_COLORS.canceladas },
+    { key: 'aguardando', label: 'Aguardando', value: fluxo.aguardando || 0, color: CHART_COLORS.aguardando },
+    { key: 'emAndamento', label: 'Em andamento', value: fluxo.emAndamento || 0, color: CHART_COLORS.emAndamento }
+  ];
+
+  renderPieChart('chartPieFluxo', 'chartPieLegend', fluxoSlices);
+  renderBarChart('chartBarsFluxo', fluxoSlices.map((s) => ({
+    label: s.label,
+    value: s.value,
+    color: s.color,
+    display: String(s.value)
+  })));
+
+  const pay = stats.porPagamento || { pix: 0, dinheiro: 0, cartao: 0 };
+  const paySlices = [
+    { key: 'pix', label: 'Pix', value: pay.pix || 0, color: CHART_COLORS.pix },
+    { key: 'dinheiro', label: 'Dinheiro', value: pay.dinheiro || 0, color: CHART_COLORS.dinheiro },
+    { key: 'cartao', label: 'Cartão', value: pay.cartao || 0, color: CHART_COLORS.cartao }
+  ];
+  renderPieChart('chartPiePagamento', 'chartPayLegend', paySlices);
+
+  const financeBars = [
+    { label: 'Gasto', value: stats.totalGasto || 0, color: CHART_COLORS.gasto, display: formatCurrency(stats.totalGasto || 0) },
+    { label: 'Cashback', value: stats.cashback || 0, color: CHART_COLORS.cashback, display: formatCurrency(stats.cashback || 0) },
+    { label: 'Crédito', value: stats.credito || 0, color: CHART_COLORS.credito, display: formatCurrency(stats.credito || 0) },
+    { label: 'Em conta', value: stats.dinheiroConta || 0, color: CHART_COLORS.saldo, display: formatCurrency(stats.dinheiroConta || 0) }
+  ];
+  renderBarChart('chartBarsFinance', financeBars);
+}
+
+function renderPieChart(svgId, legendId, slices) {
+  const svg = document.getElementById(svgId);
+  const legend = document.getElementById(legendId);
+  if (!svg || !legend) return;
+
+  const total = slices.reduce((sum, i) => sum + (Number(i.value) || 0), 0);
+  const cx = 100;
+  const cy = 100;
+  const r = 78;
+
+  if (total <= 0) {
+    svg.innerHTML = `
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="#E5E7EB"></circle>
+      <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" fill="#6B7280" font-size="13" font-family="Outfit, sans-serif">Sem dados</text>
+    `;
+    legend.innerHTML = slices.map((s) => `
+      <li><span class="chart-swatch" style="background:${s.color}"></span>${s.label}: <strong>0</strong></li>
+    `).join('');
+    return;
+  }
+
+  let angle = -Math.PI / 2;
+  const paths = slices.filter((s) => s.value > 0).map((s) => {
+    const portion = (s.value / total) * Math.PI * 2;
+    const start = angle;
+    angle += portion;
+    const end = angle;
+    const x1 = cx + r * Math.cos(start);
+    const y1 = cy + r * Math.sin(start);
+    const x2 = cx + r * Math.cos(end);
+    const y2 = cy + r * Math.sin(end);
+    const large = portion > Math.PI ? 1 : 0;
+    return `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z" fill="${s.color}">
+      <title>${s.label}: ${s.value}</title>
+    </path>`;
+  });
+
+  svg.innerHTML = paths.join('') + `
+    <circle cx="${cx}" cy="${cy}" r="42" fill="#fff"></circle>
+    <text x="${cx}" y="${cy - 6}" text-anchor="middle" fill="#0B1220" font-size="18" font-weight="800" font-family="Space Grotesk, sans-serif">${total}</text>
+    <text x="${cx}" y="${cy + 14}" text-anchor="middle" fill="#6B7280" font-size="11" font-family="Outfit, sans-serif">corridas</text>
+  `;
+
+  legend.innerHTML = slices.map((s) => {
+    const pct = total ? Math.round((s.value / total) * 100) : 0;
+    return `<li><span class="chart-swatch" style="background:${s.color}"></span>${s.label}: <strong>${s.value}</strong> <em>(${pct}%)</em></li>`;
+  }).join('');
+}
+
+function renderBarChart(containerId, items) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const max = Math.max(...items.map((i) => Number(i.value) || 0), 1);
+
+  el.innerHTML = items.map((item) => {
+    const height = Math.max(6, Math.round(((Number(item.value) || 0) / max) * 100));
+    return `
+      <div class="chart-bar-col">
+        <span class="chart-bar-value">${item.display ?? item.value}</span>
+        <div class="chart-bar-track">
+          <div class="chart-bar-fill" style="height:${height}%; background:${item.color}"></div>
+        </div>
+        <span class="chart-bar-label">${item.label}</span>
+      </div>
+    `;
+  }).join('');
 }
 
 function updateEstimateUI(estimate) {

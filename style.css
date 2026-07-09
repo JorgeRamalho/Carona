@@ -92,14 +92,17 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 72px;
+  gap: 20px;
+  min-height: 76px;
+  padding-block: 10px;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   color: var(--dark);
+  flex-shrink: 0;
 }
 
 .logo:hover {
@@ -107,7 +110,8 @@ a:hover {
 }
 
 .logo-icon {
-  font-size: 2rem;
+  font-size: 1.85rem;
+  line-height: 1;
   background: linear-gradient(135deg, var(--purple-main), var(--coral));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -117,51 +121,98 @@ a:hover {
 .logo-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  line-height: 1.15;
+  gap: 1px;
 }
 
 .logo-text strong {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--purple-deep);
 }
 
 .logo-text small {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--coral);
   font-weight: 600;
 }
 
 .logo-tagline {
   color: var(--purple-deep);
-  font-size: 0.65rem;
+  font-size: 0.62rem;
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  justify-content: flex-end;
+  gap: 18px;
+  flex: 1;
+  min-width: 0;
 }
 
-.nav a {
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.nav-links a {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 10px;
   font-weight: 600;
   color: var(--dark-soft);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+  transition: color var(--transition), background var(--transition);
 }
 
-.nav a:hover {
+.nav-links a:hover {
   color: var(--purple-main);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.nav-actions .btn-nav-action {
+  height: 40px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.nav-actions .btn-secondary.btn-nav-action {
+  border-width: 2px;
+}
+
+.nav-actions .btn-nav {
+  padding: 0 16px;
 }
 
 .menu-toggle {
   display: none;
   flex-direction: column;
+  justify-content: center;
   gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
+  flex-shrink: 0;
 }
 
 .menu-toggle span {
@@ -233,6 +284,37 @@ a:hover {
 .btn-nav-login {
   padding: 10px 20px;
   font-size: 0.9rem;
+}
+
+@media (max-width: 1200px) {
+  .nav {
+    gap: 12px;
+  }
+
+  .nav-links a {
+    padding: 0 8px;
+    font-size: 0.82rem;
+  }
+
+  .nav-actions .btn-nav-action {
+    padding: 0 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .nav-links {
+    display: none;
+  }
+
+  .nav {
+    flex: 0;
+    gap: 8px;
+  }
+
+  .nav-actions .btn-nav-action[data-pwa-install] {
+    display: none;
+  }
 }
 
 .btn-cta {
@@ -705,7 +787,26 @@ a:hover {
 
 /* Como funciona */
 .como-funciona {
-  background: linear-gradient(180deg, var(--gray-100) 0%, var(--white) 100%);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 20%, rgba(250, 204, 21, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 80%, rgba(34, 197, 94, 0.28) 0%, transparent 50%),
+    linear-gradient(145deg, #ECFDF5 0%, #F0FDF4 28%, #FEFCE8 62%, #FEF9C3 100%);
+}
+
+.como-funciona::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, rgba(22, 163, 74, 0.08) 0%, transparent 40%, rgba(234, 179, 8, 0.12) 100%);
+}
+
+.como-funciona > .container {
+  position: relative;
+  z-index: 1;
 }
 
 .steps {
@@ -732,6 +833,58 @@ a:hover {
 .step:hover {
   border-color: var(--purple-light);
   transform: translateY(-4px);
+}
+
+/* Hub de pedido na landing (mesmo layout do painel) */
+.ride-preview {
+  background: linear-gradient(180deg, var(--white) 0%, var(--gray-100) 100%);
+}
+
+.ride-hub-landing {
+  margin-top: 8px;
+}
+
+.ride-hub-landing .panel-card {
+  background: var(--white);
+}
+
+.ride-hub-landing .btn-price {
+  text-decoration: none;
+}
+
+.ride-hub-landing .form-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--dark-soft, #1f2937);
+  margin-bottom: 6px;
+}
+
+.ride-hub-landing .form-group input,
+.ride-hub-landing .form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  background: var(--white);
+}
+
+.ride-hub-landing .form-group input:focus,
+.ride-hub-landing .form-group select:focus {
+  outline: none;
+  border-color: var(--purple-main);
+}
+
+@media (max-width: 1024px) {
+  .ride-hub-landing {
+    grid-template-columns: 1fr;
+  }
+
+  .ride-hub-landing .ride-info-band {
+    grid-template-columns: 1fr;
+  }
 }
 
 .step-number {
@@ -773,7 +926,26 @@ a:hover {
    ============================================ */
 
 .cadastro {
-  background: var(--white);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 20%, rgba(250, 204, 21, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 80%, rgba(34, 197, 94, 0.28) 0%, transparent 50%),
+    linear-gradient(145deg, #ECFDF5 0%, #F0FDF4 28%, #FEFCE8 62%, #FEF9C3 100%);
+}
+
+.cadastro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, rgba(22, 163, 74, 0.08) 0%, transparent 40%, rgba(234, 179, 8, 0.12) 100%);
+}
+
+.cadastro > .container {
+  position: relative;
+  z-index: 1;
 }
 
 .cadastro-wrapper {
@@ -956,6 +1128,127 @@ a:hover {
 }
 
 /* ============================================
+   QR INSTALL
+   ============================================ */
+
+.qr-install {
+  background: linear-gradient(160deg, #F0FDF4 0%, #FFFFFF 45%, #FEFCE8 100%);
+  border-top: 1px solid var(--gray-200);
+}
+
+.qr-install-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.qr-install-copy .section-emoji {
+  display: inline-block;
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.qr-install-copy h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+
+.qr-install-copy > p {
+  color: var(--gray-500);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin-bottom: 20px;
+  max-width: 36rem;
+}
+
+.qr-install-list {
+  margin: 0 0 24px;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--gray-700, #374151);
+}
+
+.qr-install-list code {
+  font-size: 0.88em;
+  background: rgba(11, 18, 32, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.qr-install-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.qr-install-url {
+  font-size: 0.85rem;
+  color: var(--gray-500);
+  word-break: break-all;
+}
+
+.qr-install-card {
+  justify-self: center;
+  background: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-md, 0 12px 32px rgba(11, 18, 32, 0.08));
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+}
+
+.qr-install-image {
+  width: min(100%, 280px);
+  height: auto;
+  aspect-ratio: 1;
+  display: block;
+  margin: 0 auto 12px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.qr-install-caption {
+  margin: 0;
+  font-weight: 700;
+  color: var(--dark);
+  font-size: 0.95rem;
+}
+
+.install-page .install-card {
+  text-align: left;
+}
+
+.install-steps {
+  margin: 20px 0 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--gray-600, #4b5563);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+  .qr-install-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .qr-install-card {
+    order: -1;
+  }
+}
+
+/* ============================================
    FOOTER
    ============================================ */
 
@@ -1117,26 +1410,63 @@ a:hover {
 }
 
 @media (max-width: 768px) {
+  .header-inner {
+    min-height: 68px;
+    padding-block: 8px;
+  }
+
   .nav {
     position: fixed;
-    top: 72px;
+    top: 68px;
     left: 0;
     right: 0;
     background: var(--white);
     flex-direction: column;
-    padding: 24px;
-    gap: 20px;
+    align-items: stretch;
+    padding: 20px 16px 24px;
+    gap: 16px;
     box-shadow: var(--shadow-md);
     transform: translateY(-120%);
     opacity: 0;
     transition: all var(--transition);
     pointer-events: none;
+    border-bottom: 1px solid var(--gray-200);
   }
 
   .nav.open {
     transform: translateY(0);
     opacity: 1;
     pointer-events: all;
+  }
+
+  .nav-links {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .nav-links a {
+    height: 44px;
+    padding: 0 14px;
+    font-size: 0.95rem;
+    justify-content: flex-start;
+  }
+
+  .nav-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .nav-actions .btn-nav-action,
+  .nav-actions .btn-nav-action[data-pwa-install] {
+    display: inline-flex;
+    width: 100%;
+    height: 46px;
+    min-height: 46px;
+    justify-content: center;
   }
 
   .menu-toggle {
@@ -1217,5 +1547,159 @@ a:hover {
 
   .tabs {
     flex-direction: column;
+  }
+}
+
+/* --- PWA Install --- */
+
+body.pwa-modal-open {
+  overflow: hidden;
+}
+
+.pwa-install-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+}
+
+.pwa-install-modal[hidden] {
+  display: none !important;
+}
+
+.pwa-install-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 18, 32, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.pwa-install-sheet {
+  position: relative;
+  width: min(100%, 440px);
+  background: var(--white, #fff);
+  border-radius: 20px 20px 16px 16px;
+  padding: 28px 24px 24px;
+  box-shadow: 0 24px 64px rgba(11, 18, 32, 0.28);
+  border: 2px solid var(--purple-light, #e9d5ff);
+  animation: pwa-sheet-in 0.28s ease;
+}
+
+@keyframes pwa-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pwa-install-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--gray-500, #6b7280);
+  padding: 4px 8px;
+}
+
+.pwa-install-icon {
+  font-size: 2.4rem;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.pwa-install-sheet h2 {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 1.35rem;
+  text-align: center;
+  margin: 0 0 8px;
+  color: var(--gray-900, #111827);
+}
+
+.pwa-install-lead {
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--gray-600, #4b5563);
+  margin: 0 0 18px;
+  line-height: 1.45;
+}
+
+.pwa-install-steps {
+  margin: 0 0 20px;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--gray-700, #374151);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.pwa-install-steps strong {
+  color: var(--gray-900, #111827);
+}
+
+.pwa-install-cta {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.pwa-install-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--gray-500, #6b7280);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.pwa-install-hint code {
+  font-size: 0.75rem;
+  background: var(--gray-100, #f3f4f6);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.pwa-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 10001;
+  max-width: min(92vw, 420px);
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #0B1220;
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.pwa-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (min-width: 640px) {
+  .pwa-install-modal {
+    align-items: center;
+  }
+
+  .pwa-install-sheet {
+    border-radius: 20px;
   }
 }

@@ -1,8 +1,19 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Live Server (ex.: :5500) → app real com QR/API em :3000 -->
+  <script>
+    (function () {
+      var host = location.hostname;
+      var port = location.port;
+      var isLocal = host === 'localhost' || host === '127.0.0.1';
+      if (isLocal && port && port !== '3000') {
+        location.replace('http://localhost:3000' + location.pathname + location.search + location.hash);
+      }
+    })();
+  </script>
   <meta name="theme-color" content="#22C55E">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,6 +28,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="accessibility.css">
+  <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
 
@@ -31,13 +43,19 @@
           <small class="logo-tagline">🇧🇷 100% brasileiro</small>
         </span>
       </a>
-      <nav class="nav" id="nav">
-        <a href="#diferencial">Diferencial</a>
-        <a href="#como-funciona">Como funciona</a>
-        <a href="#cadastro">Cadastro</a>
-        <a href="/login.html" class="btn btn-secondary btn-nav-login">Entrar</a>
-        <button type="button" class="btn btn-secondary btn-nav-login" data-pwa-install hidden>📲 Instalar app</button>
-        <a href="#cadastro" class="btn btn-nav">Começar agora</a>
+      <nav class="nav" id="nav" aria-label="Menu principal">
+        <div class="nav-links">
+          <a href="#diferencial">Diferencial</a>
+          <a href="#como-funciona">Como funciona</a>
+          <a href="#pedir-corrida">Pedir corrida</a>
+          <a href="#cadastro">Cadastro</a>
+          <a href="#baixar-app">Baixar app</a>
+        </div>
+        <div class="nav-actions">
+          <a href="/login.html" class="btn btn-secondary btn-nav-action btn-nav-login">Entrar</a>
+          <button type="button" class="btn btn-secondary btn-nav-action" data-pwa-install aria-label="Instalar aplicativo Carona">📲 Instalar app</button>
+          <a href="#cadastro" class="btn btn-nav btn-nav-action">Começar agora</a>
+        </div>
       </nav>
       <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -200,6 +218,172 @@
     </div>
   </section>
 
+  <!-- Hub de pedido (mesmo layout do painel) -->
+  <section class="section ride-preview" id="pedir-corrida">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-emoji">📍</span>
+        <h2>Para onde vamos?</h2>
+        <p>Mesma experiência do app: peça corrida, veja orientações, pagamentos e o fluxo completo.</p>
+      </div>
+
+      <div class="ride-hub ride-hub-landing">
+        <div class="panel-card ride-form-card">
+          <div class="ride-form-header">
+            <h2>📍 Pedir corrida</h2>
+            <p class="panel-desc">Digite origem e destino, escolha o pagamento e veja o preço antes de confirmar.</p>
+          </div>
+          <form id="landingRideForm" class="ride-form" action="/login.html" method="get">
+            <div class="ride-form-fields">
+              <div class="form-group">
+                <label for="landing-origem">Origem</label>
+                <input type="text" id="landing-origem" name="origem" placeholder="Ex: Av. Paulista, 1000" autocomplete="street-address">
+              </div>
+              <div class="form-group">
+                <label for="landing-destino">Destino</label>
+                <input type="text" id="landing-destino" name="destino" placeholder="Ex: Shopping Center" autocomplete="street-address">
+              </div>
+              <div class="form-group">
+                <label for="landing-pagamento">Forma de pagamento</label>
+                <select id="landing-pagamento" name="pagamento">
+                  <option value="pix">Pix</option>
+                  <option value="dinheiro">Dinheiro</option>
+                  <option value="cartao">Cartão</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="pay-chips" aria-label="Meios de pagamento aceitos">
+              <span class="pay-chip is-active" data-pay="pix">⚡ Pix</span>
+              <span class="pay-chip" data-pay="dinheiro">💵 Dinheiro</span>
+              <span class="pay-chip" data-pay="cartao">💳 Cartão</span>
+            </div>
+
+            <div class="ride-form-actions">
+              <a href="/login.html" class="btn btn-price">💰 Ver preço</a>
+              <button type="reset" class="btn btn-secondary" id="landingClearRideBtn">🧹 Limpar</button>
+              <a href="#cadastro" class="btn btn-home-plain">📝 Cadastrar</a>
+            </div>
+          </form>
+
+          <div class="ride-quick-tips">
+            <h3>Como pedir em 3 passos</h3>
+            <ol>
+              <li>Informe <strong>origem</strong> e <strong>destino</strong></li>
+              <li>Toque em <strong>Preço</strong> e confira a rota</li>
+              <li>Confirme — um motorista aceita a corrida</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="ride-hub-side">
+          <div class="panel-card map-card">
+            <div class="map-card-head">
+              <div>
+                <h2>🗺️ Rota no Google Maps</h2>
+                <p class="panel-desc">Distância real, tempo estimado e melhor caminho.</p>
+              </div>
+            </div>
+            <div class="map-placeholder">
+              <div class="map-empty-state">
+                <span class="map-empty-icon" aria-hidden="true">🧭</span>
+                <strong>Sua rota aparece aqui</strong>
+                <p>Entre na conta, preencha origem e destino e clique em <em>Preço</em> para ver o mapa.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card ride-guide-card">
+            <h3>📖 Orientação rápida</h3>
+            <div class="ride-guide-grid">
+              <article>
+                <span>🧳</span>
+                <div>
+                  <strong>Passageiro</strong>
+                  <p>Peça a corrida, acompanhe o motorista e pague como preferir.</p>
+                </div>
+              </article>
+              <article>
+                <span>🚙</span>
+                <div>
+                  <strong>Motorista</strong>
+                  <p>Fica online, aceita a corrida disponível e finaliza no app.</p>
+                </div>
+              </article>
+              <article>
+                <span>🛡️</span>
+                <div>
+                  <strong>Segurança</strong>
+                  <p>Veja o preço antes, acompanhe a rota e avalie ao final.</p>
+                </div>
+              </article>
+              <article>
+                <span>💸</span>
+                <div>
+                  <strong>Taxa 5%</strong>
+                  <p>Mais barato que ônibus — transparente e sem surpresa.</p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <div class="ride-info-band">
+          <div class="panel-card ride-news-card">
+            <h3>📰 Novidades Carona</h3>
+            <ul class="ride-news-list">
+              <li>
+                <strong>Club Carona Brasil</strong>
+                <p>Economize até 20% nas corridas com o desconto do clube.</p>
+              </li>
+              <li>
+                <strong>Cashback automático</strong>
+                <p>Parte da economia volta como crédito e saldo em conta.</p>
+              </li>
+              <li>
+                <strong>App instalável</strong>
+                <p>Use o QR Code da home ou Instalar app para abrir sem navegador.</p>
+              </li>
+            </ul>
+          </div>
+
+          <div class="panel-card ride-pay-card">
+            <h3>💳 Pagamentos facilitados</h3>
+            <p class="panel-desc">Escolha o meio na hora do pedido — todos aceitos na corrida.</p>
+            <div class="ride-pay-grid">
+              <div class="ride-pay-item">
+                <span>⚡</span>
+                <strong>Pix</strong>
+                <small>Confirmação rápida</small>
+              </div>
+              <div class="ride-pay-item">
+                <span>💵</span>
+                <strong>Dinheiro</strong>
+                <small>Pague ao motorista</small>
+              </div>
+              <div class="ride-pay-item">
+                <span>💳</span>
+                <strong>Cartão</strong>
+                <small>Crédito ou débito</small>
+              </div>
+            </div>
+            <p class="ride-pay-note">O valor estimado já inclui a taxa de 5% da plataforma.</p>
+          </div>
+
+          <div class="panel-card ride-flow-card">
+            <h3>🚦 Fluxo da corrida</h3>
+            <ol class="ride-flow-steps">
+              <li><strong>Solicitar</strong> — origem, destino e pagamento</li>
+              <li><strong>Aguardar</strong> — matching com motorista online</li>
+              <li><strong>Aceitar</strong> — motorista confirma e inicia a rota</li>
+              <li><strong>Finalizar</strong> — pague, avalie e acumule cashback</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Cadastro -->
   <section class="section cadastro" id="cadastro">
     <div class="container">
@@ -354,6 +538,43 @@
     </div>
   </section>
 
+  <!-- QR Code — baixar app pelo próprio site -->
+  <section class="section qr-install" id="baixar-app">
+    <div class="container">
+      <div class="qr-install-grid">
+        <div class="qr-install-copy">
+          <span class="section-emoji">📲</span>
+          <h2>Baixe o app pelo site</h2>
+          <p>
+            Escaneie o QR Code com a câmera do celular. Ele abre a página de instalação
+            <strong>direto no diretório do Carona</strong> — sem loja de aplicativos.
+          </p>
+          <ul class="qr-install-list">
+            <li>Abre <code>/instalar.html</code> no próprio site</li>
+            <li>Instala como app na tela inicial</li>
+            <li>Funciona em Android, iPhone e desktop</li>
+          </ul>
+          <div class="qr-install-actions">
+            <a href="/instalar.html" class="btn btn-primary">Abrir página de instalação</a>
+            <button type="button" class="btn btn-secondary" data-pwa-install>📲 Instalar neste dispositivo</button>
+          </div>
+          <p class="qr-install-url" id="qrInstallUrlLabel">Link: carregando…</p>
+        </div>
+        <div class="qr-install-card">
+          <img
+            id="qrInstallImage"
+            class="qr-install-image"
+            src="/api/qr-install.png"
+            width="280"
+            height="280"
+            alt="QR Code para instalar o app Carona pelo site"
+          >
+          <p class="qr-install-caption">Aponte a câmera do celular</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="container footer-grid">
@@ -372,7 +593,9 @@
         <h4>Links</h4>
         <a href="#diferencial">Diferencial</a>
         <a href="#como-funciona">Como funciona</a>
+        <a href="#pedir-corrida">Pedir corrida</a>
         <a href="#cadastro">Cadastro</a>
+        <a href="#baixar-app">Baixar app</a>
         <a href="/login.html">Entrar</a>
         <a href="/termos.html">Termos de Uso</a>
         <a href="/privacidade.html">Privacidade</a>
@@ -403,7 +626,7 @@
   <script src="js/auth.js"></script>
   <script src="js/utils.js"></script>
   <script src="script.js"></script>
-  <script src="js/pwa.js?v=1"></script>
+  <script src="js/pwa.js?v=3"></script>
   <script src="js/accessibility.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -30,11 +30,12 @@
       </span>
     </a>
     <nav class="sidebar-nav">
-      <button class="sidebar-link active" data-panel="solicitar">📍 Solicitar corrida</button>
+      <button class="sidebar-link active" data-panel="solicitar">📍 Para onde vamos</button>
+      <button class="sidebar-link" data-panel="insights">📊 Meu painel</button>
       <button class="sidebar-link" data-panel="historico">📋 Minhas corridas</button>
       <button class="sidebar-link" data-panel="perfil">👤 Meu perfil</button>
     </nav>
-    <button type="button" class="btn btn-secondary btn-install" data-pwa-install hidden>📲 Instalar app</button>
+    <button type="button" class="btn btn-secondary btn-install" data-pwa-install aria-label="Instalar aplicativo Carona">📲 Instalar app</button>
     <button class="btn btn-logout" id="logoutBtn">🚪 Sair</button>
   </aside>
 
@@ -54,7 +55,14 @@
         <span class="stat-card-icon">🚕</span>
         <div>
           <span class="stat-card-value" id="statCorridas">0</span>
-          <span class="stat-card-label">Corridas</span>
+          <span class="stat-card-label">Finalizadas</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card-icon">❌</span>
+        <div>
+          <span class="stat-card-value" id="statCanceladas">0</span>
+          <span class="stat-card-label">Canceladas</span>
         </div>
       </div>
       <div class="stat-card">
@@ -65,41 +73,51 @@
         </div>
       </div>
       <div class="stat-card highlight">
-        <span class="stat-card-icon">🎉</span>
+        <span class="stat-card-icon">🎁</span>
         <div>
-          <span class="stat-card-value">5%</span>
-          <span class="stat-card-label">Taxa fixa</span>
+          <span class="stat-card-value" id="statCashback">R$ 0</span>
+          <span class="stat-card-label">Cashback</span>
         </div>
       </div>
     </div>
 
-    <!-- Panel: Solicitar -->
+    <!-- Panel: Solicitar / Para onde vamos -->
     <section class="panel active" id="panel-solicitar">
-      <div class="panel-grid">
+      <div class="ride-hub">
         <div class="panel-card ride-form-card">
-          <h2>📍 Para onde vamos?</h2>
-          <form id="rideForm">
-            <div class="form-group">
-              <label for="origem">Origem</label>
-              <input type="text" id="origem" name="origem" placeholder="Ex: Av. Paulista, 1000" required>
+          <div class="ride-form-header">
+            <h2>📍 Para onde vamos?</h2>
+            <p class="panel-desc">Digite origem e destino, escolha o pagamento e veja o preço antes de confirmar.</p>
+          </div>
+          <form id="rideForm" class="ride-form">
+            <div class="ride-form-fields">
+              <div class="form-group">
+                <label for="origem">Origem</label>
+                <input type="text" id="origem" name="origem" placeholder="Ex: Av. Paulista, 1000" required autocomplete="street-address">
+              </div>
+              <div class="form-group">
+                <label for="destino">Destino</label>
+                <input type="text" id="destino" name="destino" placeholder="Ex: Shopping Center" required autocomplete="street-address">
+              </div>
+              <div class="form-group">
+                <label for="pagamento">Forma de pagamento</label>
+                <select id="pagamento" name="pagamento" required>
+                  <option value="pix">Pix</option>
+                  <option value="dinheiro">Dinheiro</option>
+                  <option value="cartao">Cartão</option>
+                </select>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="destino">Destino</label>
-              <input type="text" id="destino" name="destino" placeholder="Ex: Shopping Center" required>
+
+            <div class="pay-chips" aria-label="Meios de pagamento aceitos">
+              <span class="pay-chip is-active" data-pay="pix">⚡ Pix</span>
+              <span class="pay-chip" data-pay="dinheiro">💵 Dinheiro</span>
+              <span class="pay-chip" data-pay="cartao">💳 Cartão</span>
             </div>
-            <div class="form-group">
-              <label for="pagamento">Forma de pagamento</label>
-              <select id="pagamento" name="pagamento" required>
-                <option value="pix">Pix</option>
-                <option value="dinheiro">Dinheiro</option>
-                <option value="cartao">Cartão</option>
-              </select>
-            </div>
+
             <div class="ride-form-actions">
               <button type="button" class="btn btn-price" id="estimateBtn">💰 Preço</button>
               <button type="button" class="btn btn-secondary" id="clearRideFormBtn">🧹 Limpar</button>
-            </div>
-            <div class="ride-home-wrap">
               <a href="/" class="btn btn-home-plain" id="rideHomeBtn">🏠 Home</a>
             </div>
 
@@ -119,18 +137,185 @@
             </div>
             <p class="form-feedback" id="rideFeedback"></p>
           </form>
+
+          <div class="ride-quick-tips">
+            <h3>Como pedir em 3 passos</h3>
+            <ol>
+              <li>Informe <strong>origem</strong> e <strong>destino</strong></li>
+              <li>Toque em <strong>Preço</strong> e confira a rota</li>
+              <li>Confirme — um motorista aceita a corrida</li>
+            </ol>
+          </div>
         </div>
 
-        <div class="panel-card map-card">
-          <h2>🗺️ Rota no Google Maps</h2>
-          <p class="panel-desc">Melhor caminho, distância real e tempo estimado de viagem.</p>
-          <div id="routeMap" class="route-map" hidden></div>
-          <p class="map-placeholder" id="mapPlaceholder">Informe origem e destino e clique em "Preço".</p>
+        <div class="ride-hub-side">
+          <div class="panel-card map-card">
+            <div class="map-card-head">
+              <div>
+                <h2>🗺️ Rota no Google Maps</h2>
+                <p class="panel-desc">Distância real, tempo estimado e melhor caminho.</p>
+              </div>
+            </div>
+            <div id="routeMap" class="route-map" hidden></div>
+            <div class="map-placeholder" id="mapPlaceholder">
+              <div class="map-empty-state">
+                <span class="map-empty-icon" aria-hidden="true">🧭</span>
+                <strong>Sua rota aparece aqui</strong>
+                <p>Preencha origem e destino e clique em <em>Preço</em> para ver o mapa.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card ride-guide-card">
+            <h3>📖 Orientação rápida</h3>
+            <div class="ride-guide-grid">
+              <article>
+                <span>🧳</span>
+                <div>
+                  <strong>Passageiro</strong>
+                  <p>Peça a corrida, acompanhe o motorista e pague como preferir.</p>
+                </div>
+              </article>
+              <article>
+                <span>🚙</span>
+                <div>
+                  <strong>Motorista</strong>
+                  <p>Fica online, aceita a corrida disponível e finaliza no app.</p>
+                </div>
+              </article>
+              <article>
+                <span>🛡️</span>
+                <div>
+                  <strong>Segurança</strong>
+                  <p>Veja o preço antes, acompanhe a rota e avalie ao final.</p>
+                </div>
+              </article>
+              <article>
+                <span>💸</span>
+                <div>
+                  <strong>Taxa 5%</strong>
+                  <p>Mais barato que ônibus — transparente e sem surpresa.</p>
+                </div>
+              </article>
+            </div>
+          </div>
         </div>
 
         <div class="panel-card active-ride-card" id="activeRideCard" hidden>
           <h2>🛣️ Corrida ativa</h2>
           <div id="activeRideContent"></div>
+        </div>
+
+        <div class="ride-info-band">
+          <div class="panel-card ride-news-card">
+            <h3>📰 Novidades Carona</h3>
+            <ul class="ride-news-list">
+              <li>
+                <strong>Club Carona Brasil</strong>
+                <p>Economize até 20% nas corridas com o desconto do clube.</p>
+              </li>
+              <li>
+                <strong>Cashback automático</strong>
+                <p>Parte da economia volta como crédito e saldo em conta.</p>
+              </li>
+              <li>
+                <strong>App instalável</strong>
+                <p>Use o QR Code da home ou Instalar app para abrir sem navegador.</p>
+              </li>
+            </ul>
+          </div>
+
+          <div class="panel-card ride-pay-card">
+            <h3>💳 Pagamentos facilitados</h3>
+            <p class="panel-desc">Escolha o meio na hora do pedido — todos aceitos na corrida.</p>
+            <div class="ride-pay-grid">
+              <div class="ride-pay-item">
+                <span>⚡</span>
+                <strong>Pix</strong>
+                <small>Confirmação rápida</small>
+              </div>
+              <div class="ride-pay-item">
+                <span>💵</span>
+                <strong>Dinheiro</strong>
+                <small>Pague ao motorista</small>
+              </div>
+              <div class="ride-pay-item">
+                <span>💳</span>
+                <strong>Cartão</strong>
+                <small>Crédito ou débito</small>
+              </div>
+            </div>
+            <p class="ride-pay-note">O valor estimado já inclui a taxa de 5% da plataforma.</p>
+          </div>
+
+          <div class="panel-card ride-flow-card">
+            <h3>🚦 Fluxo da corrida</h3>
+            <ol class="ride-flow-steps">
+              <li><strong>Solicitar</strong> — origem, destino e pagamento</li>
+              <li><strong>Aguardar</strong> — matching com motorista online</li>
+              <li><strong>Aceitar</strong> — motorista confirma e inicia a rota</li>
+              <li><strong>Finalizar</strong> — pague, avalie e acumule cashback</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel: Insights / gráficos -->
+    <section class="panel" id="panel-insights">
+      <div class="insights-header">
+        <h2>📊 Meu painel de uso</h2>
+        <p>Fluxo de corridas, pagamentos, crédito, cashback e saldo em conta.</p>
+      </div>
+
+      <div class="insights-kpi-row" id="insightsKpiRow">
+        <div class="insights-kpi">
+          <span class="insights-kpi-label">Crédito</span>
+          <strong id="kpiCredito">R$ 0,00</strong>
+        </div>
+        <div class="insights-kpi">
+          <span class="insights-kpi-label">Dinheiro em conta</span>
+          <strong id="kpiSaldo">R$ 0,00</strong>
+        </div>
+        <div class="insights-kpi">
+          <span class="insights-kpi-label">Cashback</span>
+          <strong id="kpiCashback">R$ 0,00</strong>
+        </div>
+        <div class="insights-kpi">
+          <span class="insights-kpi-label">Economia total</span>
+          <strong id="kpiEconomia">R$ 0,00</strong>
+        </div>
+      </div>
+
+      <div class="insights-charts-grid">
+        <div class="panel-card chart-card">
+          <h3>Fluxo de uso (pizza)</h3>
+          <p class="panel-desc">Distribuição das suas corridas por status.</p>
+          <div class="chart-pie-wrap">
+            <svg id="chartPieFluxo" class="chart-pie" viewBox="0 0 200 200" role="img" aria-label="Gráfico de pizza do fluxo de corridas"></svg>
+            <ul class="chart-legend" id="chartPieLegend"></ul>
+          </div>
+        </div>
+
+        <div class="panel-card chart-card">
+          <h3>Volume por status (barras)</h3>
+          <p class="panel-desc">Quantidade de corridas em cada etapa do fluxo.</p>
+          <div class="chart-bars" id="chartBarsFluxo" role="img" aria-label="Gráfico de barras do fluxo de corridas"></div>
+        </div>
+
+        <div class="panel-card chart-card">
+          <h3>Pagamentos (pizza)</h3>
+          <p class="panel-desc">Como você paga as corridas finalizadas.</p>
+          <div class="chart-pie-wrap">
+            <svg id="chartPiePagamento" class="chart-pie" viewBox="0 0 200 200" role="img" aria-label="Gráfico de pizza de pagamentos"></svg>
+            <ul class="chart-legend" id="chartPayLegend"></ul>
+          </div>
+        </div>
+
+        <div class="panel-card chart-card">
+          <h3>Finanças (barras)</h3>
+          <p class="panel-desc">Gasto, cashback, crédito e saldo.</p>
+          <div class="chart-bars chart-bars-money" id="chartBarsFinance" role="img" aria-label="Gráfico de barras financeiras"></div>
         </div>
       </div>
     </section>
@@ -207,8 +392,8 @@
   <script src="js/utils.js"></script>
   <script src="js/maps.js?v=4"></script>
   <script src="js/profile.js"></script>
-  <script src="js/pwa.js?v=1"></script>
-  <script src="js/passageiro.js?v=10"></script>
+  <script src="js/pwa.js?v=3"></script>
+  <script src="js/passageiro.js?v=12"></script>
   <script src="js/accessibility.js?v=2"></script>
 </body>
 </html>

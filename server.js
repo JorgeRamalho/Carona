@@ -39,10 +39,54 @@ const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || '';
 
 app.use(cors({ origin: true }));
 app.use(express.json());
+
+// Serve SW e manifest com headers corretos (antes do static)
+app.get('/sw.js', (_req, res) => {
+  res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.sendFile(path.join(__dirname, 'sw.js'));
+});
+
+app.get('/manifest.webmanifest', (_req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json; charset=UTF-8');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'manifest.webmanifest'));
+});
+
 app.use(express.static(__dirname));
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, message: 'Servidor Carona ativo.' });
+});
+
+// QR Code apontando para a página de instalação no próprio site
+app.get('/api/qr-install.png', async (req, res) => {
+  try {
+    const QRCode = require('qrcode');
+    const host = req.get('x-forwarded-host') || req.get('host') || `localhost:${PORT}`;
+    const proto = req.get('x-forwarded-proto') || req.protocol || 'http';
+    const installUrl = `${proto}://${host}/instalar.html`;
+    const png = await QRCode.toBuffer(installUrl, {
+      type: 'png',
+      width: 360,
+      margin: 2,
+      errorCorrectionLevel: 'M',
+      color: { dark: '#0B1220', light: '#FFFFFF' }
+    });
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.setHeader('X-Install-Url', installUrl);
+    res.send(png);
+  } catch (err) {
+    res.status(500).json({ error: 'Não foi possível gerar o QR Code.' });
+  }
+});
+
+app.get('/api/install-url', (req, res) => {
+  const host = req.get('x-forwarded-host') || req.get('host') || `localhost:${PORT}`;
+  const proto = req.get('x-forwarded-proto') || req.protocol || 'http';
+  res.json({ url: `${proto}://${host}/instalar.html` });
 });
 
 function readJSON(file, fallback = []) {
@@ -626,18 +670,47 @@ app.get('/api/stats', authMiddleware, (req, res) => {
     : rides.filter(r => r.motoristaId === req.user.id);
 
   const concluidas = myRides.filter(r => r.status === 'concluida');
-  const totalGasto = concluidas.reduce((s, r) => s + r.total, 0);
-  const totalGanho = concluidas.reduce((s, r) => s + r.motorista, 0);
-  const totalTaxa = concluidas.reduce((s, r) => s + r.taxa, 0);
+  const canceladas = myRides.filter(r => r.status === 'cancelada');
+  const aguardando = myRides.filter(r => r.status === 'aguardando');
+  const emAndamento = myRides.filter(r => r.status === 'em_andamento' || r.status === 'aceita');
+
+  const totalGasto = concluidas.reduce((s, r) => s + (Number(r.total) || 0), 0);
+  const totalGanho = concluidas.reduce((s, r) => s + (Number(r.motorista) || 0), 0);
+  const totalTaxa = concluidas.reduce((s, r) => s + (Number(r.taxa) || 0), 0);
+  const economia = concluidas.reduce((s, r) => s + (Number(r.economia) || Number(r.total) * 0.2 || 0), 0);
+  const cashback = +(economia * 0.25).toFixed(2);
+  const credito = +(cashback * 0.6).toFixed(2);
+  const dinheiroConta = +(cashback * 0.4).toFixed(2);
+
+  const porPagamento = { pix: 0, dinheiro: 0, cartao: 0 };
+  concluidas.forEach((r) => {
+    const key = porPagamento[r.pagamento] !== undefined ? r.pagamento : 'pix';
+    porPagamento[key] += 1;
+  });
+
+  const fluxoUso = {
+    solicitadas: myRides.length,
+    aguardando: aguardando.length,
+    emAndamento: emAndamento.length,
+    finalizadas: concluidas.length,
+    canceladas: canceladas.length
+  };
 
   res.json({
     totalCorridas: myRides.length,
     concluidas: concluidas.length,
-    aguardando: myRides.filter(r => r.status === 'aguardando').length,
-    emAndamento: myRides.filter(r => r.status === 'em_andamento' || r.status === 'aceita').length,
+    canceladas: canceladas.length,
+    aguardando: aguardando.length,
+    emAndamento: emAndamento.length,
     totalGasto: +totalGasto.toFixed(2),
     totalGanho: +totalGanho.toFixed(2),
     totalTaxa: +totalTaxa.toFixed(2),
+    economia: +economia.toFixed(2),
+    cashback,
+    credito,
+    dinheiroConta,
+    porPagamento,
+    fluxoUso,
     taxaPercentual: 5
   });
 });

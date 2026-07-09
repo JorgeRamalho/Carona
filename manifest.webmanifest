@@ -1,22 +1,15 @@
 {
-  "name": "Carona — App de corridas",
+  "name": "Carona",
   "short_name": "Carona",
-  "description": "App de mobilidade 100% brasileiro. Solicite e aceite corridas.",
-  "start_url": "/login.html",
+  "description": "App de mobilidade 100% brasileiro. Solicite e aceite corridas com taxa de apenas 5%.",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "background_color": "#0B1220",
   "theme_color": "#22C55E",
   "lang": "pt-BR",
-  "categories": ["travel", "navigation"],
   "icons": [
-    {
-      "src": "/assets/logo.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
     {
       "src": "/assets/icon-192.png",
       "sizes": "192x192",
@@ -27,7 +20,13 @@
       "src": "/assets/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
