@@ -79,6 +79,7 @@ app.get('/api/qr-install.png', async (req, res) => {
     res.setHeader('X-Install-Url', installUrl);
     res.send(png);
   } catch (err) {
+    console.error('[qr-install]', err);
     res.status(500).json({ error: 'Não foi possível gerar o QR Code.' });
   }
 });
@@ -87,6 +88,43 @@ app.get('/api/install-url', (req, res) => {
   const host = req.get('x-forwarded-host') || req.get('host') || `localhost:${PORT}`;
   const proto = req.get('x-forwarded-proto') || req.protocol || 'http';
   res.json({ url: `${proto}://${host}/instalar.html` });
+});
+
+// Atalho Windows (.url) — download real quando o Chrome não libera o PWA
+app.get('/api/download-atalho', (req, res) => {
+  const host = req.get('x-forwarded-host') || req.get('host') || `localhost:${PORT}`;
+  const proto = req.get('x-forwarded-proto') || req.protocol || 'http';
+  const appUrl = `${proto}://${host}/`;
+  const content = [
+    '[InternetShortcut]',
+    `URL=${appUrl}`,
+    'IconIndex=0',
+    `IconFile=${proto}://${host}/assets/icon-192.png`,
+    ''
+  ].join('\r\n');
+
+  res.setHeader('Content-Type', 'application/internet-shortcut');
+  res.setHeader('Content-Disposition', 'attachment; filename="Carona.url"');
+  res.setHeader('Cache-Control', 'no-store');
+  res.send(content);
+});
+
+// Diagnóstico de instalabilidade PWA
+app.get('/api/pwa-check', (_req, res) => {
+  const icon192 = path.join(__dirname, 'assets', 'icon-192.png');
+  const icon512 = path.join(__dirname, 'assets', 'icon-512.png');
+  const manifest = path.join(__dirname, 'manifest.webmanifest');
+  const sw = path.join(__dirname, 'sw.js');
+  res.json({
+    ok: true,
+    files: {
+      manifest: fs.existsSync(manifest),
+      sw: fs.existsSync(sw),
+      icon192: fs.existsSync(icon192),
+      icon512: fs.existsSync(icon512)
+    },
+    tip: 'No Chrome: chrome://apps e chrome://flags — use Instalar na barra de endereço se o prompt automático não aparecer.'
+  });
 });
 
 function readJSON(file, fallback = []) {

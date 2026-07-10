@@ -40,25 +40,65 @@ function initLandingRideHub() {
   sync();
 }
 
+function setInstallQrLabel(label, url) {
+  if (!label || !url) return;
+  label.innerHTML = `Link: <a href="${url}">${url}</a>`;
+}
+
+function qrImageFallbackUrl(installUrl) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=12&data=${encodeURIComponent(installUrl)}`;
+}
+
+function applyInstallQrImage(img, installUrl) {
+  if (!img || !installUrl) return;
+
+  const requestId = String(Date.now());
+  img.dataset.qrRequestId = requestId;
+
+  const serverSrc = `/api/qr-install.png?t=${requestId}`;
+  const fallbackSrc = qrImageFallbackUrl(installUrl);
+
+  img.alt = 'QR Code para instalar o app Carona pelo site';
+  img.onerror = () => {
+    if (img.dataset.qrRequestId !== requestId) return;
+    if (img.dataset.qrFallback === '1') return;
+    img.dataset.qrFallback = '1';
+    img.src = fallbackSrc;
+  };
+
+  img.dataset.qrFallback = '';
+  img.src = serverSrc;
+
+  // Se a API demorar/falhar em silêncio, garante QR visível
+  window.setTimeout(() => {
+    if (img.dataset.qrRequestId !== requestId) return;
+    if (img.dataset.qrFallback === '1') return;
+    if (!img.complete || img.naturalWidth === 0) {
+      img.onerror?.();
+    }
+  }, 2500);
+}
+
 async function initInstallQr() {
   const label = document.getElementById('qrInstallUrlLabel');
   const img = document.getElementById('qrInstallImage');
   if (!label && !img) return;
 
+  let installUrl = `${window.location.origin}/instalar.html`;
+  setInstallQrLabel(label, installUrl);
+  applyInstallQrImage(img, installUrl);
+
   try {
-    const res = await fetch('/api/install-url');
+    const res = await fetch('/api/install-url', { cache: 'no-store' });
+    if (!res.ok) return;
     const data = await res.json();
-    if (label && data.url) {
-      label.innerHTML = `Link: <a href="${data.url}">${data.url}</a>`;
-    }
-    if (img) {
-      img.src = `/api/qr-install.png?t=${Date.now()}`;
-    }
+    if (!data?.url) return;
+
+    installUrl = data.url;
+    setInstallQrLabel(label, installUrl);
+    applyInstallQrImage(img, installUrl);
   } catch {
-    if (label) {
-      const fallback = `${window.location.origin}/instalar.html`;
-      label.innerHTML = `Link: <a href="${fallback}">${fallback}</a>`;
-    }
+    // Mantém URL local + QR com fallback externo
   }
 }
 

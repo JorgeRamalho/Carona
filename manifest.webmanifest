@@ -1,14 +1,16 @@
 {
+  "id": "/",
   "name": "Carona",
   "short_name": "Carona",
   "description": "App de mobilidade 100% brasileiro. Solicite e aceite corridas com taxa de apenas 5%.",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0B1220",
   "theme_color": "#22C55E",
   "lang": "pt-BR",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/assets/icon-192.png",
