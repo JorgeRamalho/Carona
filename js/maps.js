@@ -177,7 +177,7 @@ const caronaMaps = {
       return url.toString();
     }
 
-    const url = new URL('https://maps.google.com/maps');
+    const url = new URL('https://www.google.com/maps');
     url.searchParams.set('saddr', origem);
     url.searchParams.set('daddr', destino);
     url.searchParams.set('dirflg', 'd');
@@ -186,16 +186,26 @@ const caronaMaps = {
     return url.toString();
   },
 
+  refreshModalMapSize() {
+    if (!this.modalMap || !window.google?.maps) return;
+    google.maps.event.trigger(this.modalMap, 'resize');
+    const directions = this.modalDirectionsRenderer?.getDirections?.();
+    if (directions?.routes?.[0]?.bounds) {
+      this.modalMap.fitBounds(directions.routes[0].bounds, 48);
+    }
+  },
+
   renderEmbedMap(container, origem, destino) {
+    const height = Math.max(container.clientHeight || 0, container.offsetHeight || 0, 280);
+    container.style.height = `${height}px`;
     container.innerHTML = `
       <iframe
         class="google-maps-embed"
         title="Rota no Google Maps"
         src="${this.buildEmbedUrl(origem, destino)}"
-        loading="lazy"
+        loading="eager"
         referrerpolicy="no-referrer-when-downgrade"
         allowfullscreen
-        style="border:0;border-radius:14px;width:100%;height:100%;display:block;"
       ></iframe>
     `;
   },
@@ -205,6 +215,7 @@ const caronaMaps = {
     if (!container || !origem || !destino) return;
 
     container.hidden = false;
+    this.modalMap = null;
     this.modalDirectionsRenderer = null;
     this.clearMap('modal');
 
@@ -240,7 +251,8 @@ const caronaMaps = {
         (result, status) => {
           if (status === 'OK') {
             this.modalDirectionsRenderer.setDirections(result);
-            setTimeout(() => google.maps.event.trigger(this.modalMap, 'resize'), 150);
+            requestAnimationFrame(() => this.refreshModalMapSize());
+            setTimeout(() => this.refreshModalMapSize(), 200);
             return;
           }
           this.renderEmbedMap(container, origem, destino);

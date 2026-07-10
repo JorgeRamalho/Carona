@@ -183,11 +183,7 @@ function openEstimateModal(estimate, origem, destino) {
 
   requestAnimationFrame(() => {
     caronaMaps.renderModalRoute('estimateModalMap', estimate, origem, destino);
-    setTimeout(() => {
-      if (window.google?.maps && caronaMaps.modalMap) {
-        google.maps.event.trigger(caronaMaps.modalMap, 'resize');
-      }
-    }, 250);
+    setTimeout(() => caronaMaps.refreshModalMapSize(), 250);
   });
 }
 
@@ -234,7 +230,7 @@ function switchPanel(panel) {
 }
 
 function loadPassageiroProfile() {
-  loadProfileContent(
+  loadProfilePanel(
     (user) => `<div class="profile-field"><label>CPF</label><span>${user.cpf || '—'}</span></div>`,
     '🧳 Passageiro'
   );

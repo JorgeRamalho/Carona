@@ -1113,15 +1113,15 @@
 .estimate-modal-map-wrap {
   margin: 10px 18px 0;
   padding: 0;
-  flex: 1 1 auto;
-  min-height: 320px;
+  flex: 0 0 auto;
+  height: 280px;
 }
 
 .estimate-modal-map,
 .estimate-modal-map-wrap .route-map {
   width: 100%;
-  height: 100%;
-  min-height: 320px;
+  height: 280px;
+  min-height: 280px;
   margin: 0;
   border-radius: 14px;
   overflow: hidden;
@@ -1132,10 +1132,10 @@
   isolation: isolate;
 }
 
-.estimate-modal-map > div,
-.estimate-modal-map .gm-style,
 .estimate-modal-map iframe,
 .google-maps-embed {
+  position: absolute;
+  inset: 0;
   width: 100% !important;
   height: 100% !important;
   border: 0 !important;
@@ -1327,12 +1327,13 @@
 
   .estimate-modal-map-wrap {
     margin-inline: 12px;
-    min-height: 240px;
+    height: 220px;
   }
 
   .estimate-modal-map,
   .estimate-modal-map-wrap .route-map {
-    min-height: 240px;
+    height: 220px;
+    min-height: 220px;
   }
 
   .estimate-modal-header,

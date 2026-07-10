@@ -279,11 +279,7 @@ function openOfferModal(ride) {
 
   requestAnimationFrame(() => {
     caronaMaps.renderModalRoute('offerModalMap', ride, ride.origem, ride.destino);
-    setTimeout(() => {
-      if (window.google?.maps && caronaMaps.modalMap) {
-        google.maps.event.trigger(caronaMaps.modalMap, 'resize');
-      }
-    }, 250);
+    setTimeout(() => caronaMaps.refreshModalMapSize(), 250);
   });
 }
 
