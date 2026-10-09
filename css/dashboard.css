@@ -140,6 +140,44 @@
   background: var(--gray-100);
 }
 
+.dashboard-page.site-integrated {
+  flex-direction: column;
+}
+
+.dashboard-page.site-integrated .site-header {
+  flex-shrink: 0;
+}
+
+.dashboard-page.site-integrated .dashboard-app {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.dashboard-page.site-integrated .sidebar {
+  top: var(--site-header-height, 76px);
+  height: calc(100vh - var(--site-header-height, 76px));
+}
+
+.driver-access-banner {
+  margin-bottom: 16px;
+  padding: 16px 20px;
+  border: 2px solid var(--purple-light, #c4b5fd);
+  background: var(--white);
+}
+
+.driver-access-banner p {
+  margin: 0 0 12px;
+  color: var(--gray-700);
+}
+
+.motorista-gate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .sidebar {
   width: 260px;
   background: var(--dark);
@@ -277,8 +315,59 @@
   font-size: 0.9rem;
 }
 
-.online-toggle span.online {
+.online-toggle span.online,
+.online-toggle-current.online {
   color: var(--mint);
+}
+
+.online-toggle-current:not(.online) {
+  color: var(--gray-600);
+}
+
+.status-segment {
+  display: inline-flex;
+  border-radius: var(--radius-full);
+  background: var(--gray-100);
+  padding: 3px;
+  gap: 2px;
+  box-shadow: inset 0 0 0 1px var(--gray-200);
+}
+
+.status-segment-btn {
+  border: none;
+  background: transparent;
+  color: var(--gray-600);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 88px;
+}
+
+.status-segment-btn:hover:not(:disabled) {
+  color: var(--purple-deep);
+}
+
+.status-segment-btn.is-active {
+  background: var(--white);
+  color: var(--purple-deep);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-segment-btn#setOnlineBtn.is-active {
+  color: var(--mint);
+}
+
+.status-segment-btn#setOfflineBtn.is-active {
+  color: var(--coral);
+}
+
+.status-segment-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .switch {

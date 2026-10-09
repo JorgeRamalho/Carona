@@ -209,6 +209,32 @@ function sanitizeUser(user) {
   return safe;
 }
 
+function findUserRecord(userId) {
+  const users = readJSON(USERS_FILE);
+  return users.find((u) => u.id === userId) || null;
+}
+
+function ensureModoAtivo(user) {
+  if (!user) return 'passageiro';
+  if (!user.modoAtivo) {
+    user.modoAtivo = user.tipo === 'motorista' ? 'motorista' : 'passageiro';
+  }
+  return user.modoAtivo;
+}
+
+function hasDriverProfile(user) {
+  if (!user) return false;
+  const v = user.veiculo || {};
+  return Boolean(user.cnh && v.modelo && v.placa);
+}
+
+function persistUserIfNeeded(users, user) {
+  const idx = users.findIndex((u) => u.id === user.id);
+  if (idx === -1) return;
+  users[idx] = user;
+  writeJSON(USERS_FILE, users);
+}
+
 function getUserRating(userId, role) {
   const rides = readJSON(RIDES_FILE);
   const scores = rides
@@ -380,6 +406,7 @@ app.post('/api/auth/register/passageiro', async (req, res) => {
     tipo: 'passageiro',
     nome, email, telefone, cpf, cidade,
     senha: await bcrypt.hash(senha, 10),
+    modoAtivo: 'passageiro',
     criadoEm: new Date().toISOString()
   };
   users.push(user);
@@ -408,6 +435,7 @@ app.post('/api/auth/register/motorista', async (req, res) => {
     veiculo: { modelo: veiculo, placa, cor, ano: parseInt(ano, 10) },
     senha: await bcrypt.hash(senha, 10),
     online: false,
+    modoAtivo: 'motorista',
     criadoEm: new Date().toISOString()
   };
   users.push(user);
@@ -433,7 +461,58 @@ app.get('/api/auth/me', authMiddleware, (req, res) => {
   const users = readJSON(USERS_FILE);
   const user = users.find(u => u.id === req.user.id);
   if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
+  ensureModoAtivo(user);
+  persistUserIfNeeded(users, user);
   res.json({ user: sanitizeUser(user) });
+});
+
+app.patch('/api/user/modo', authMiddleware, (req, res) => {
+  const modo = req.body.modo;
+  if (modo !== 'passageiro' && modo !== 'motorista') {
+    return res.status(400).json({ error: 'Modo inválido.' });
+  }
+  const users = readJSON(USERS_FILE);
+  const user = users.find((u) => u.id === req.user.id);
+  if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
+
+  if (modo === 'motorista' && !hasDriverProfile(user)) {
+    return res.status(400).json({
+      error: 'Complete o cadastro de motorista (CNH e veículo) para usar este modo.',
+      needsDriverProfile: true
+    });
+  }
+
+  if (modo === 'passageiro' && user.online) {
+    user.online = false;
+  }
+
+  user.modoAtivo = modo;
+  ensureModoAtivo(user);
+  persistUserIfNeeded(users, user);
+  res.json({ message: 'Modo atualizado.', user: sanitizeUser(user) });
+});
+
+app.post('/api/user/perfil-motorista', authMiddleware, (req, res) => {
+  const { cnh, cnh_categoria, veiculo, placa, cor, ano } = req.body;
+  if (!cnh || !cnh_categoria || !veiculo || !placa || !cor || !ano) {
+    return res.status(400).json({ error: 'Preencha CNH, categoria e dados do veículo.' });
+  }
+
+  const users = readJSON(USERS_FILE);
+  const user = users.find((u) => u.id === req.user.id);
+  if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
+
+  user.cnh = cnh;
+  user.cnh_categoria = cnh_categoria;
+  user.veiculo = { modelo: veiculo, placa, cor, ano: parseInt(ano, 10) };
+  if (user.online === undefined) user.online = false;
+  ensureModoAtivo(user);
+  persistUserIfNeeded(users, user);
+
+  res.json({
+    message: 'Perfil de motorista salvo! Agora você pode alternar para o modo Motorista.',
+    user: sanitizeUser(user)
+  });
 });
 
 app.post('/api/auth/forgot-password', (req, res) => {
@@ -555,8 +634,9 @@ app.post('/api/rides/estimate', async (req, res) => {
 });
 
 app.post('/api/rides', authMiddleware, async (req, res) => {
-  if (req.user.tipo !== 'passageiro') {
-    return res.status(403).json({ error: 'Apenas passageiros podem solicitar corridas.' });
+  const me = findUserRecord(req.user.id);
+  if (!me || ensureModoAtivo(me) !== 'passageiro') {
+    return res.status(403).json({ error: 'Alterne para o modo passageiro para solicitar corridas.' });
   }
   const { origem, destino, pagamento } = req.body;
   if (!origem || !destino) {
@@ -575,9 +655,8 @@ app.post('/api/rides', authMiddleware, async (req, res) => {
     }
 
     const users = readJSON(USERS_FILE);
-    const onlineDrivers = users.filter((u) => u.tipo === 'motorista' && u.online).length;
+    const onlineDrivers = users.filter((u) => hasDriverProfile(u) && u.online).length;
 
-    const me = users.find((u) => u.id === req.user.id);
     const ride = {
       id: uuidv4(),
       passageiroId: req.user.id,
@@ -609,12 +688,12 @@ app.post('/api/rides', authMiddleware, async (req, res) => {
 
 app.get('/api/rides', authMiddleware, (req, res) => {
   const rides = readJSON(RIDES_FILE);
+  const me = findUserRecord(req.user.id);
+  const modo = ensureModoAtivo(me);
   let filtered;
-  if (req.user.tipo === 'passageiro') {
+  if (modo === 'passageiro') {
     filtered = rides.filter(r => r.passageiroId === req.user.id);
   } else {
-    const users = readJSON(USERS_FILE);
-    const me = users.find((u) => u.id === req.user.id);
     const isOnline = !!me?.online;
     filtered = rides.filter(r =>
       r.motoristaId === req.user.id ||
@@ -626,11 +705,11 @@ app.get('/api/rides', authMiddleware, (req, res) => {
 });
 
 app.patch('/api/rides/:id/accept', authMiddleware, (req, res) => {
-  if (req.user.tipo !== 'motorista') {
-    return res.status(403).json({ error: 'Apenas motoristas podem aceitar corridas.' });
-  }
   const users = readJSON(USERS_FILE);
   const me = users.find((u) => u.id === req.user.id);
+  if (!me || !hasDriverProfile(me) || ensureModoAtivo(me) !== 'motorista') {
+    return res.status(403).json({ error: 'Alterne para o modo motorista para aceitar corridas.' });
+  }
   if (!me?.online) {
     return res.status(400).json({ error: 'Fique online para aceitar corridas.' });
   }
@@ -760,12 +839,15 @@ app.patch('/api/rides/:id/cancel', authMiddleware, (req, res) => {
 // --- DRIVER STATUS ---
 
 app.patch('/api/driver/status', authMiddleware, (req, res) => {
-  if (req.user.tipo !== 'motorista') {
-    return res.status(403).json({ error: 'Apenas motoristas.' });
-  }
   const users = readJSON(USERS_FILE);
   const user = users.find(u => u.id === req.user.id);
   if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
+  if (!hasDriverProfile(user)) {
+    return res.status(403).json({ error: 'Complete o cadastro de motorista.', needsDriverProfile: true });
+  }
+  if (ensureModoAtivo(user) !== 'motorista') {
+    return res.status(403).json({ error: 'Alterne para o modo motorista para ficar online.' });
+  }
   user.online = !!req.body.online;
   writeJSON(USERS_FILE, users);
   res.json({ online: user.online });
@@ -775,7 +857,9 @@ app.patch('/api/driver/status', authMiddleware, (req, res) => {
 
 app.get('/api/stats', authMiddleware, (req, res) => {
   const rides = readJSON(RIDES_FILE);
-  const myRides = req.user.tipo === 'passageiro'
+  const me = findUserRecord(req.user.id);
+  const modo = ensureModoAtivo(me);
+  const myRides = modo === 'passageiro'
     ? rides.filter(r => r.passageiroId === req.user.id)
     : rides.filter(r => r.motoristaId === req.user.id);
 

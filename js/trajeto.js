@@ -11,7 +11,11 @@ const PAYMENT_LABELS = {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!auth.requireAuth('motorista')) return;
+  if (!auth.requireLogin()) return;
+  if (auth.getModoAtivo() !== 'motorista' || !auth.hasDriverProfile()) {
+    window.location.href = '/motorista.html';
+    return;
+  }
   const params = new URLSearchParams(window.location.search);
   rideId = params.get('ride') || '';
   const lat = Number(params.get('lat'));

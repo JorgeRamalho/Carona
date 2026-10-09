@@ -3,13 +3,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (auth.isLoggedIn()) {
-    const user = auth.getUser();
-    updateHeaderForLoggedUser(user);
-  }
-
-  initHeader();
-  initMobileMenu();
   initTabs();
   initForms();
   initHeroCTA();
@@ -173,47 +166,6 @@ async function initInstallQr() {
   } catch {
     // Mantém URL local + QR com fallback externo
   }
-}
-
-function updateHeaderForLoggedUser(user) {
-  const nav = document.getElementById('nav');
-  // Passageiro vai direto para "Para onde vamos"; motorista para o painel de corridas
-  const dashboardUrl = user.tipo === 'motorista'
-    ? '/motorista.html#corridas'
-    : '/passageiro.html#solicitar';
-  const loginBtn = nav.querySelector('.btn-nav-login');
-  if (loginBtn) {
-    loginBtn.href = dashboardUrl;
-    loginBtn.textContent = 'Meu painel';
-    loginBtn.classList.remove('btn-secondary');
-    loginBtn.classList.add('btn-nav');
-  }
-}
-
-function initHeader() {
-  const header = document.getElementById('header');
-  window.addEventListener('scroll', () => {
-    header.classList.toggle('scrolled', window.scrollY > 50);
-  });
-}
-
-function initMobileMenu() {
-  const toggle = document.getElementById('menuToggle');
-  const nav = document.getElementById('nav');
-
-  toggle.addEventListener('click', () => {
-    const isOpen = nav.classList.toggle('open');
-    toggle.classList.toggle('active', isOpen);
-    toggle.setAttribute('aria-expanded', isOpen);
-  });
-
-  nav.querySelectorAll('a, button').forEach(link => {
-    link.addEventListener('click', () => {
-      nav.classList.remove('open');
-      toggle.classList.remove('active');
-      toggle.setAttribute('aria-expanded', 'false');
-    });
-  });
 }
 
 function initTabs() {

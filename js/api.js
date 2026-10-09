@@ -143,6 +143,14 @@ const api = {
     return this.request('/api/driver/status', { method: 'PATCH', body: JSON.stringify({ online }) });
   },
 
+  setModoAtivo(modo) {
+    return this.request('/api/user/modo', { method: 'PATCH', body: JSON.stringify({ modo }) });
+  },
+
+  saveDriverProfile(body) {
+    return this.request('/api/user/perfil-motorista', { method: 'POST', body: JSON.stringify(body) });
+  },
+
   getStats() {
     return this.request('/api/stats');
   },

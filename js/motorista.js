@@ -30,8 +30,44 @@ const DRIVER_STATUS = {
   cancelada: { text: 'Cancelada', emoji: '❌', class: 'status-cancelled' }
 };
 
+let driverSessionMode = 'full';
+
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!auth.requireAuth('motorista')) return;
+  if (auth.isLoggedIn()) {
+    const synced = await auth.syncSessionFromServer();
+    if (!synced) {
+      localStorage.removeItem('carona_token');
+      localStorage.removeItem('carona_user');
+    }
+  }
+
+  driverSessionMode = resolveDriverSessionMode();
+  auth.updateHeaderForLoggedUser();
+
+  if (driverSessionMode === 'guest') {
+    showDriverAccessBanner(
+      'Entre na sua conta para alternar entre modo Passageiro e Motorista.',
+      [
+        { href: `/login.html?redirect=${encodeURIComponent('/motorista.html')}`, label: 'Entrar', primary: true },
+        { href: '/#cadastro', label: 'Criar conta' }
+      ]
+    );
+  } else if (driverSessionMode === 'wrong-mode') {
+    showDriverAccessBanner(
+      'Você está no <strong>modo passageiro</strong>. Use o seletor <strong>🚙 Motorista</strong> no topo para alternar.',
+      [
+        { href: '#', label: 'Alternar para motorista', primary: true, action: () => handleModeSwitch('motorista') }
+      ]
+    );
+  } else if (driverSessionMode === 'needs-profile') {
+    showDriverAccessBanner(
+      'Complete CNH e veículo para usar o modo motorista e ficar online.',
+      [
+        { href: '#perfil', label: 'Completar cadastro motorista', primary: true, action: () => switchPanel('perfil') }
+      ]
+    );
+  }
+
   try {
     await caronaMaps.init();
   } catch (err) {
@@ -41,13 +77,48 @@ document.addEventListener('DOMContentLoaded', async () => {
   initOfferModal();
   initRatingModal();
   initReceiptModal();
-  initGeolocation();
-  initNavWindowSync();
+  if (driverSessionMode === 'full') {
+    await refreshDriverOnlineFromServer();
+    initGeolocation();
+    initNavWindowSync();
+  }
+  if (location.hash === '#corridas') switchPanel('corridas');
+  if (location.hash === '#perfil') switchPanel('perfil');
 });
+
+function resolveDriverSessionMode() {
+  if (!auth.isLoggedIn()) return 'guest';
+  if (!auth.hasDriverProfile()) return 'needs-profile';
+  if (auth.getModoAtivo() !== 'motorista') return 'wrong-mode';
+  return 'full';
+}
+
+function showDriverAccessBanner(message, actions) {
+  const main = document.getElementById('driverMain');
+  if (!main || main.querySelector('.driver-access-banner')) return;
+  const banner = document.createElement('div');
+  banner.className = 'panel-card driver-access-banner';
+  banner.setAttribute('role', 'status');
+  const links = actions
+    .map((a) => `<a href="${a.href}" class="btn ${a.primary ? 'btn-primary' : 'btn-secondary'}">${a.label}</a>`)
+    .join('');
+  banner.innerHTML = `<p>${message}</p><div class="motorista-gate-actions">${links}</div>`;
+  main.insertBefore(banner, main.firstChild);
+  actions.forEach((a, i) => {
+    if (!a.action) return;
+    const btn = banner.querySelectorAll('.motorista-gate-actions a')[i];
+    if (!btn) return;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      a.action();
+    });
+  });
+}
 
 function initDashboard() {
   const user = auth.getUser();
-  document.getElementById('userName').textContent = user.nome.split(' ')[0];
+  const displayName = user?.nome?.split(' ')[0] || 'Motorista';
+  document.getElementById('userName').textContent = displayName;
 
   document.getElementById('logoutBtn').addEventListener('click', () => auth.logout());
   document.getElementById('sidebarToggle').addEventListener('click', () => {
@@ -58,40 +129,139 @@ function initDashboard() {
     link.addEventListener('click', () => switchPanel(link.dataset.panel));
   });
 
-  const onlineSwitch = document.getElementById('onlineSwitch');
-  onlineSwitch.checked = user.online || false;
-  updateOnlineLabel(onlineSwitch.checked);
-  onlineSwitch.addEventListener('change', async () => {
-    try {
-      const { online } = await api.setDriverStatus(onlineSwitch.checked);
-      user.online = online;
-      localStorage.setItem('carona_user', JSON.stringify(user));
-      updateOnlineLabel(online);
-      if (online) {
-        knownAvailableIds = new Set();
-        offersInitialized = false;
-        loadRides();
-      } else {
-        closeOfferModal();
-        knownAvailableIds = new Set();
-        offersInitialized = false;
-        offerQueue = [];
-        loadRides();
-      }
-    } catch (err) {
-      onlineSwitch.checked = !onlineSwitch.checked;
-      alert(err.message);
-    }
-  });
+  bindOnlineStatusControls();
+  applyOnlineStatus(!!user?.online);
+
+  tickVisorClock();
+  visorInterval = setInterval(() => {
+    tickVisorClock();
+    if (driverSessionMode === 'full') refreshLiveTrip();
+  }, 1000);
+
+  if (driverSessionMode !== 'full') {
+    setOnlineControlsEnabled(false);
+    markOnlineControlsBlocked(driverSessionMode);
+    return;
+  }
+
+  setOnlineControlsEnabled(true);
 
   loadStats();
   loadRides();
-  tickVisorClock();
   pollInterval = setInterval(loadRides, 3000);
-  visorInterval = setInterval(() => {
-    tickVisorClock();
-    refreshLiveTrip();
-  }, 1000);
+}
+
+function bindOnlineStatusControls() {
+  const offlineBtn = document.getElementById('setOfflineBtn');
+  const onlineBtn = document.getElementById('setOnlineBtn');
+  if (!offlineBtn || !onlineBtn) return;
+
+  offlineBtn.addEventListener('click', () => changeDriverOnline(false));
+  onlineBtn.addEventListener('click', () => changeDriverOnline(true));
+}
+
+function setOnlineControlsEnabled(enabled) {
+  const offlineBtn = document.getElementById('setOfflineBtn');
+  const onlineBtn = document.getElementById('setOnlineBtn');
+  if (offlineBtn) {
+    offlineBtn.disabled = !enabled;
+    offlineBtn.removeAttribute('title');
+  }
+  if (onlineBtn) {
+    onlineBtn.disabled = !enabled;
+    onlineBtn.removeAttribute('title');
+  }
+}
+
+function markOnlineControlsBlocked(mode) {
+  const reason =
+    mode === 'guest'
+      ? 'Faça login para alterar o status.'
+      : mode === 'needs-profile'
+        ? 'Complete o cadastro de motorista no perfil.'
+        : 'Alterne para o modo Motorista no topo da página.';
+  const offlineBtn = document.getElementById('setOfflineBtn');
+  const onlineBtn = document.getElementById('setOnlineBtn');
+  if (offlineBtn) offlineBtn.title = reason;
+  if (onlineBtn) onlineBtn.title = reason;
+}
+
+function applyOnlineStatus(online) {
+  const offlineBtn = document.getElementById('setOfflineBtn');
+  const onlineBtn = document.getElementById('setOnlineBtn');
+  if (offlineBtn) {
+    offlineBtn.classList.toggle('is-active', !online);
+    offlineBtn.setAttribute('aria-pressed', String(!online));
+  }
+  if (onlineBtn) {
+    onlineBtn.classList.toggle('is-active', online);
+    onlineBtn.setAttribute('aria-pressed', String(online));
+  }
+  updateOnlineLabel(online);
+  refreshVisorIdleState();
+}
+
+async function refreshDriverOnlineFromServer() {
+  try {
+    const user = await auth.syncSessionFromServer();
+    if (!user || auth.getModoAtivo(user) !== 'motorista') return;
+    applyOnlineStatus(!!user.online);
+  } catch (err) {
+    console.warn('Não foi possível sincronizar status online:', err.message);
+  }
+}
+
+async function changeDriverOnline(nextOnline) {
+  if (driverSessionMode !== 'full') {
+    alert('Entre com uma conta de motorista para alterar o status.');
+    return;
+  }
+
+  const user = auth.getUser();
+  if (!!user?.online === nextOnline) {
+    applyOnlineStatus(nextOnline);
+    return;
+  }
+
+  setOnlineControlsEnabled(false);
+  try {
+    const { online } = await api.setDriverStatus(nextOnline);
+    if (user) {
+      user.online = online;
+      localStorage.setItem('carona_user', JSON.stringify(user));
+    }
+    applyOnlineStatus(online);
+    if (online) {
+      knownAvailableIds = new Set();
+      offersInitialized = false;
+      loadRides();
+    } else {
+      closeOfferModal();
+      knownAvailableIds = new Set();
+      offersInitialized = false;
+      offerQueue = [];
+      loadRides();
+    }
+  } catch (err) {
+    alert(err.message);
+    applyOnlineStatus(!!user?.online);
+  } finally {
+    setOnlineControlsEnabled(true);
+  }
+}
+
+function refreshVisorIdleState() {
+  const online = !!auth.getUser()?.online;
+  const idle = document.getElementById('visorIdle');
+  if (!idle || idle.hidden) return;
+  const title = document.getElementById('visorIdleTitle');
+  const text = document.getElementById('visorIdleText');
+  if (title) title.textContent = online ? 'Procurando corridas' : 'Fique online';
+  if (text) {
+    text.textContent = online
+      ? 'Aguardando chamadas na região. O visor avisa quando surgir uma corrida.'
+      : 'Toque em Online para receber chamadas de corrida no visor.';
+  }
 }
 
 function initOfferModal() {
@@ -180,6 +350,54 @@ function switchPanel(panel) {
 }
 
 function loadMotoristaProfile() {
+  const container = document.getElementById('profileContent');
+  if (!container) return;
+
+  if (!auth.hasDriverProfile()) {
+    container.innerHTML = `
+      <form id="driverProfileForm" class="driver-profile-form">
+        <p class="panel-desc">Um login, dois modos: preencha uma vez para poder alternar para <strong>Motorista</strong>.</p>
+        <div class="form-grid">
+          <div class="form-group"><label for="drv-cnh">CNH *</label><input id="drv-cnh" name="cnh" required></div>
+          <div class="form-group"><label for="drv-cat">Categoria *</label>
+            <select id="drv-cat" name="cnh_categoria" required>
+              <option value="B">B</option><option value="A">A</option><option value="AB">AB</option>
+            </select>
+          </div>
+          <div class="form-group"><label for="drv-veiculo">Veículo *</label><input id="drv-veiculo" name="veiculo" required></div>
+          <div class="form-group"><label for="drv-placa">Placa *</label><input id="drv-placa" name="placa" required></div>
+          <div class="form-group"><label for="drv-cor">Cor *</label><input id="drv-cor" name="cor" required></div>
+          <div class="form-group"><label for="drv-ano">Ano *</label><input id="drv-ano" name="ano" type="number" min="1990" max="2099" required></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar e habilitar modo motorista</button>
+        <p class="form-feedback" id="driverProfileFeedback" role="status"></p>
+      </form>`;
+    const form = document.getElementById('driverProfileForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const feedback = document.getElementById('driverProfileFeedback');
+      const body = {
+        cnh: form.cnh.value.trim(),
+        cnh_categoria: form.cnh_categoria.value,
+        veiculo: form.veiculo.value.trim(),
+        placa: form.placa.value.trim(),
+        cor: form.cor.value.trim(),
+        ano: form.ano.value
+      };
+      try {
+        const { user } = await api.saveDriverProfile(body);
+        auth.saveSession(auth.getToken(), user);
+        driverSessionMode = resolveDriverSessionMode();
+        showFeedback(feedback, 'Perfil salvo! Alternando para modo motorista…', 'success');
+        await auth.switchModo('motorista');
+        window.location.reload();
+      } catch (err) {
+        showFeedback(feedback, err.message, 'error');
+      }
+    });
+    return;
+  }
+
   loadProfilePanel((user) => {
     const v = user.veiculo || {};
     return `

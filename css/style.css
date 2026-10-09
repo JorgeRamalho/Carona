@@ -177,6 +177,62 @@ a:hover {
   background: rgba(34, 197, 94, 0.08);
 }
 
+.nav-links a.nav-link-active {
+  color: var(--purple-main);
+  background: rgba(34, 197, 94, 0.12);
+  font-weight: 700;
+}
+
+.mode-switcher {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background: var(--gray-200);
+  box-shadow: inset 0 0 0 1px rgba(22, 163, 74, 0.12);
+}
+
+.mode-switcher--sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mode-switcher-btn {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.78rem;
+  padding: 8px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  color: var(--gray-500);
+  white-space: nowrap;
+  transition: var(--transition);
+}
+
+.mode-switcher--sidebar .mode-switcher-btn {
+  border-radius: var(--radius-sm);
+  color: rgba(255, 255, 255, 0.75);
+  text-align: left;
+}
+
+.mode-switcher-btn.is-active {
+  background: var(--white);
+  color: var(--purple-deep);
+  box-shadow: var(--shadow-sm);
+}
+
+.mode-switcher--sidebar .mode-switcher-btn.is-active {
+  background: var(--mint);
+  color: var(--dark);
+}
+
 .nav-actions {
   display: flex;
   align-items: center;

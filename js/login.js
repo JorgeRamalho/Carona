@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  if (auth.isLoggedIn()) return auth.redirectByRole();
+  if (auth.isLoggedIn()) return auth.redirectAfterLogin();
 
   const form = document.getElementById('loginForm');
   const feedback = document.getElementById('loginFeedback');
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const { token, user } = await api.login(email, senha);
       auth.saveSession(token, user);
       showFeedback(feedback, '✅ Login realizado! Redirecionando...', 'success');
-      setTimeout(() => auth.redirectByRole(), 800);
+      setTimeout(() => auth.redirectAfterLogin(), 800);
     } catch (err) {
       showFeedback(feedback, err.message, 'error');
       btn.disabled = false;

@@ -11,7 +11,10 @@ const PAYMENT_LABELS = {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!auth.requireAuth('passageiro')) return;
+  if (!auth.requireLogin()) return;
+  await auth.syncSessionFromServer();
+  if (typeof renderModeSwitcher === 'function') renderModeSwitcher();
+  if (typeof updateModeSwitcherUi === 'function') updateModeSwitcherUi();
   initDashboard();
   initEstimateModal();
   initPassengerRatingModal();
