@@ -13,12 +13,31 @@ const FEE_RATE = 0.05;
 const PER_KM_PASSAGEIRO = 2.00;
 const PER_KM_MOTORISTA = 2.00;
 
-const DATA_DIR = path.join(__dirname, 'data');
+const ROOT = path.join(__dirname, '..');
+const CONFIG_DIR = path.join(ROOT, 'config');
+const PUBLIC_DIR = path.join(ROOT, 'public');
+const DATA_DIR = path.join(ROOT, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const RIDES_FILE = path.join(DATA_DIR, 'rides.json');
 
+const PAGE_ALIASES = {
+  '/login.html': 'pages/login.html',
+  '/passageiro.html': 'pages/passageiro.html',
+  '/motorista.html': 'pages/motorista.html',
+  '/instalar.html': 'pages/instalar.html',
+  '/esqueci-senha.html': 'pages/esqueci-senha.html',
+  '/redefinir-senha.html': 'pages/redefinir-senha.html',
+  '/termos.html': 'pages/termos.html',
+  '/privacidade.html': 'pages/privacidade.html',
+  '/offline.html': 'pages/offline.html',
+  '/formulario.html': 'pages/formulario.html',
+  '/trajeto.html': 'pages/trajeto.html',
+  '/pages/motorista.html': 'pages/motorista.html',
+  '/pages/trajeto.html': 'pages/trajeto.html'
+};
+
 function loadEnv() {
-  const envPath = path.join(__dirname, '.env');
+  const envPath = path.join(ROOT, '.env');
   if (!fs.existsSync(envPath)) return;
   fs.readFileSync(envPath, 'utf8').split('\n').forEach((line) => {
     const trimmed = line.trim();
@@ -51,10 +70,24 @@ app.get('/sw.js', (_req, res) => {
 app.get('/manifest.webmanifest', (_req, res) => {
   res.setHeader('Content-Type', 'application/manifest+json; charset=UTF-8');
   res.setHeader('Cache-Control', 'no-cache');
-  res.sendFile(path.join(__dirname, 'manifest.webmanifest'));
+  res.sendFile(path.join(CONFIG_DIR, 'manifest.webmanifest'));
 });
 
-app.use(express.static(__dirname));
+app.get('/robots.txt', (_req, res) => {
+  res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.sendFile(path.join(PUBLIC_DIR, 'robots.txt'));
+});
+
+app.get('/sitemap.xml', (_req, res) => {
+  res.setHeader('Content-Type', 'application/xml; charset=UTF-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.sendFile(path.join(PUBLIC_DIR, 'sitemap.xml'));
+});
+
+app.use('/css', express.static(path.join(ROOT, 'css'), { index: false }));
+app.use('/js', express.static(path.join(ROOT, 'js'), { index: false }));
+app.use('/assets', express.static(path.join(ROOT, 'assets'), { index: false }));
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, message: 'Servidor Carona ativo.' });
@@ -111,9 +144,9 @@ app.get('/api/download-atalho', (req, res) => {
 
 // Diagnóstico de instalabilidade PWA
 app.get('/api/pwa-check', (_req, res) => {
-  const icon192 = path.join(__dirname, 'assets', 'icon-192.png');
-  const icon512 = path.join(__dirname, 'assets', 'icon-512.png');
-  const manifest = path.join(__dirname, 'manifest.webmanifest');
+  const icon192 = path.join(ROOT, 'assets', 'icon-192.png');
+  const icon512 = path.join(ROOT, 'assets', 'icon-512.png');
+  const manifest = path.join(CONFIG_DIR, 'manifest.webmanifest');
   const sw = path.join(__dirname, 'sw.js');
   res.json({
     ok: true,
@@ -203,10 +236,25 @@ function getUserRating(userId, role) {
   };
 }
 
+function isSameLocalDay(iso) {
+  if (!iso) return false;
+  const date = new Date(iso);
+  const now = new Date();
+  return date.getFullYear() === now.getFullYear()
+    && date.getMonth() === now.getMonth()
+    && date.getDate() === now.getDate();
+}
+
 function enrichRideForClient(ride) {
   const enriched = { ...ride };
+  const users = readJSON(USERS_FILE);
   if (ride.passageiroId) {
     enriched.passageiroRating = getUserRating(ride.passageiroId, 'passageiro');
+    const passenger = users.find((u) => u.id === ride.passageiroId);
+    if (passenger) {
+      enriched.passageiroTelefone = ride.passageiroTelefone || passenger.telefone || null;
+      enriched.passageiroCidade = passenger.cidade || null;
+    }
   }
   if (ride.motoristaId) {
     enriched.motoristaRating = getUserRating(ride.motoristaId, 'motorista');
@@ -529,10 +577,12 @@ app.post('/api/rides', authMiddleware, async (req, res) => {
     const users = readJSON(USERS_FILE);
     const onlineDrivers = users.filter((u) => u.tipo === 'motorista' && u.online).length;
 
+    const me = users.find((u) => u.id === req.user.id);
     const ride = {
       id: uuidv4(),
       passageiroId: req.user.id,
       passageiroNome: req.user.nome,
+      passageiroTelefone: me?.telefone || null,
       motoristaId: null,
       motoristaNome: null,
       origem,
@@ -602,9 +652,26 @@ app.patch('/api/rides/:id/accept', authMiddleware, (req, res) => {
   ride.motoristaTelefone = me.telefone || null;
   ride.motoristaVeiculo = me.veiculo || null;
   ride.status = 'aceita';
-  ride.atualizadoEm = new Date().toISOString();
+  ride.aceitaEm = new Date().toISOString();
+  ride.atualizadoEm = ride.aceitaEm;
   writeJSON(RIDES_FILE, rides);
   res.json({ message: 'Corrida aceita! Passageiro notificado.', ride: enrichRideForClient(ride) });
+});
+
+app.patch('/api/rides/:id/arrive', authMiddleware, (req, res) => {
+  const rides = readJSON(RIDES_FILE);
+  const ride = rides.find((r) => r.id === req.params.id);
+  if (!ride) return res.status(404).json({ error: 'Corrida não encontrada.' });
+  if (ride.motoristaId !== req.user.id) {
+    return res.status(403).json({ error: 'Sem permissão.' });
+  }
+  if (ride.status !== 'aceita') {
+    return res.status(400).json({ error: 'Só é possível avisar chegada em corridas aceitas.' });
+  }
+  ride.chegadaEm = new Date().toISOString();
+  ride.atualizadoEm = ride.chegadaEm;
+  writeJSON(RIDES_FILE, rides);
+  res.json({ message: 'Chegada registrada. Passageiro notificado.', ride: enrichRideForClient(ride) });
 });
 
 app.patch('/api/rides/:id/start', authMiddleware, (req, res) => {
@@ -618,7 +685,8 @@ app.patch('/api/rides/:id/start', authMiddleware, (req, res) => {
     return res.status(400).json({ error: 'Só é possível iniciar corridas aceitas.' });
   }
   ride.status = 'em_andamento';
-  ride.atualizadoEm = new Date().toISOString();
+  ride.iniciadaEm = new Date().toISOString();
+  ride.atualizadoEm = ride.iniciadaEm;
   writeJSON(RIDES_FILE, rides);
   res.json({ message: 'Corrida iniciada!', ride: enrichRideForClient(ride) });
 });
@@ -634,10 +702,14 @@ app.patch('/api/rides/:id/complete', authMiddleware, (req, res) => {
     return res.status(400).json({ error: 'Inicie a corrida antes de finalizar.' });
   }
   ride.status = 'concluida';
+  ride.concluidaEm = new Date().toISOString();
+  const startMs = ride.iniciadaEm ? new Date(ride.iniciadaEm).getTime() : Date.now();
+  ride.tempoPercursoSegundos = Math.max(1, Math.round((Date.now() - startMs) / 1000));
+  ride.kmRodados = Number(ride.distancia) || 0;
   if (req.body.avaliacaoPassageiro) {
     ride.avaliacaoPassageiro = Number(req.body.avaliacaoPassageiro);
   }
-  ride.atualizadoEm = new Date().toISOString();
+  ride.atualizadoEm = ride.concluidaEm;
   writeJSON(RIDES_FILE, rides);
   res.json({ message: 'Corrida concluída!', ride: enrichRideForClient(ride) });
 });
@@ -712,6 +784,11 @@ app.get('/api/stats', authMiddleware, (req, res) => {
   const aguardando = myRides.filter(r => r.status === 'aguardando');
   const emAndamento = myRides.filter(r => r.status === 'em_andamento' || r.status === 'aceita');
 
+  const concluidasHoje = concluidas.filter((r) => isSameLocalDay(r.concluidaEm || r.atualizadoEm));
+  const ganhosHoje = concluidasHoje.reduce((s, r) => s + (Number(r.motorista) || 0), 0);
+  const kmHoje = concluidasHoje.reduce((s, r) => s + (Number(r.kmRodados || r.distancia) || 0), 0);
+  const kmTotal = concluidas.reduce((s, r) => s + (Number(r.kmRodados || r.distancia) || 0), 0);
+
   const totalGasto = concluidas.reduce((s, r) => s + (Number(r.total) || 0), 0);
   const totalGanho = concluidas.reduce((s, r) => s + (Number(r.motorista) || 0), 0);
   const totalTaxa = concluidas.reduce((s, r) => s + (Number(r.taxa) || 0), 0);
@@ -749,19 +826,29 @@ app.get('/api/stats', authMiddleware, (req, res) => {
     dinheiroConta,
     porPagamento,
     fluxoUso,
-    taxaPercentual: 5
+    taxaPercentual: 5,
+    ganhosHoje: +ganhosHoje.toFixed(2),
+    kmHoje: +kmHoje.toFixed(1),
+    kmTotal: +kmTotal.toFixed(1),
+    corridasHoje: concluidasHoje.length
   });
 });
 
 app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api')) {
-    const file = path.join(__dirname, req.path === '/' ? 'index.html' : req.path);
-    if (fs.existsSync(file) && fs.statSync(file).isFile()) {
-      return res.sendFile(file);
-    }
-    return res.sendFile(path.join(__dirname, 'index.html'));
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'Rota não encontrada.' });
   }
-  res.status(404).json({ error: 'Rota não encontrada.' });
+
+  if (req.path === '/' || req.path === '/index.html') {
+    return res.sendFile(path.join(ROOT, 'index.html'));
+  }
+
+  const alias = PAGE_ALIASES[req.path];
+  if (alias) {
+    return res.sendFile(path.join(ROOT, alias));
+  }
+
+  return res.sendFile(path.join(ROOT, 'index.html'));
 });
 
 app.listen(PORT, () => {

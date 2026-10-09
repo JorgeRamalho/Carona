@@ -21,23 +21,96 @@ document.addEventListener('DOMContentLoaded', () => {
 function initLandingRideHub() {
   const select = document.getElementById('landing-pagamento');
   const chips = document.querySelectorAll('#pedir-corrida .pay-chip');
-  if (!select || !chips.length) return;
+  const estimateBtn = document.getElementById('landingEstimateBtn');
+  const clearBtn = document.getElementById('landingClearRideBtn');
+  const feedback = document.getElementById('landingRideFeedback');
+  const origemInput = document.getElementById('landing-origem');
+  const destinoInput = document.getElementById('landing-destino');
 
-  const sync = () => {
+  if (select && chips.length) {
+    const sync = () => {
+      chips.forEach((chip) => {
+        chip.classList.toggle('is-active', chip.dataset.pay === select.value);
+      });
+    };
+
     chips.forEach((chip) => {
-      chip.classList.toggle('is-active', chip.dataset.pay === select.value);
+      chip.addEventListener('click', () => {
+        select.value = chip.dataset.pay;
+        sync();
+      });
     });
-  };
 
-  chips.forEach((chip) => {
-    chip.addEventListener('click', () => {
-      select.value = chip.dataset.pay;
-      sync();
+    select.addEventListener('change', sync);
+    sync();
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      resetLandingEstimate();
+      if (feedback) showFeedback(feedback, '', '');
     });
-  });
+  }
 
-  select.addEventListener('change', sync);
-  sync();
+  if (estimateBtn) {
+    estimateBtn.addEventListener('click', handleLandingEstimate);
+  }
+
+  caronaMaps.init().then(() => {
+    caronaMaps.bindAddressInputs('landing-origem', 'landing-destino');
+  }).catch(() => {});
+}
+
+function resetLandingEstimate() {
+  const placeholder = document.getElementById('landingMapPlaceholder');
+  const routeMap = document.getElementById('landingRouteMap');
+  const result = document.getElementById('landingEstimateResult');
+  if (placeholder) placeholder.hidden = false;
+  if (routeMap) routeMap.hidden = true;
+  if (result) result.hidden = true;
+  if (window.caronaMaps) caronaMaps.clearMap('main');
+}
+
+async function handleLandingEstimate() {
+  const origem = document.getElementById('landing-origem')?.value.trim();
+  const destino = document.getElementById('landing-destino')?.value.trim();
+  const feedback = document.getElementById('landingRideFeedback');
+  const btn = document.getElementById('landingEstimateBtn');
+
+  if (!origem || !destino) {
+    return showFeedback(feedback, 'Informe origem e destino.', 'error');
+  }
+
+  const btnText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Calculando...';
+  showFeedback(feedback, '', '');
+
+  try {
+    await caronaMaps.init();
+    const estimate = await api.estimateRide(origem, destino);
+
+    document.getElementById('landingEstimateValue').textContent = formatCurrency(estimate.total);
+    document.getElementById('landingEstimateDist').textContent = `${estimate.distancia} km`;
+    document.getElementById('landingEstimateDuration').textContent =
+      estimate.duracaoTexto || formatDuration(estimate.duracaoSegundos);
+    document.getElementById('landingEstimateTaxa').textContent =
+      formatCurrency(estimate.taxaPassageiro || estimate.taxa);
+    document.getElementById('landingEstimateEconomia').textContent =
+      formatCurrency(estimate.economia || estimate.total * 0.2);
+
+    document.getElementById('landingMapPlaceholder').hidden = true;
+    document.getElementById('landingRouteMap').hidden = false;
+    document.getElementById('landingEstimateResult').hidden = false;
+    caronaMaps.renderRoute('landingRouteMap', estimate);
+    showFeedback(feedback, 'Estimativa calculada! Cadastre-se para confirmar a corrida.', 'success');
+  } catch (err) {
+    showFeedback(feedback, err.message, 'error');
+    resetLandingEstimate();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = btnText;
+  }
 }
 
 function setInstallQrLabel(label, url) {

@@ -1,23 +1,38 @@
-const CACHE_NAME = 'carona-v5';
+const CACHE_NAME = 'carona-v8';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE = [
   '/',
   '/index.html',
   '/login.html',
+  '/motorista.html',
+  '/passageiro.html',
+  '/trajeto.html',
   '/instalar.html',
   '/offline.html',
-  '/style.css',
-  '/dashboard.css',
-  '/accessibility.css',
+  '/css/style.css',
+  '/css/dashboard.css',
+  '/css/accessibility.css',
   '/js/api.js',
   '/js/auth.js',
   '/js/utils.js',
+  '/js/maps.js',
+  '/js/motorista.js',
+  '/js/trajeto.js',
+  '/js/profile.js',
   '/js/pwa.js',
+  '/js/accessibility.js',
+  '/js/landing.js',
+  '/robots.txt',
+  '/sitemap.xml',
   '/assets/logo.svg',
   '/assets/icon-192.png',
   '/assets/icon-512.png',
   '/manifest.webmanifest'
 ];
+
+function isStaticAsset(pathname) {
+  return pathname.startsWith('/css/') || pathname.startsWith('/js/') || pathname.startsWith('/assets/');
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -73,7 +88,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navegação: network first, fallback offline
+  if (isStaticAsset(url.pathname)) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => {
+          if (cached) return cached;
+          const pathOnly = new Request(url.pathname, { method: 'GET' });
+          return caches.match(pathOnly);
+        }))
+    );
+    return;
+  }
+
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -88,15 +121,14 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    caches.match(request).then((cached) =>
-      cached ||
-      fetch(request).then((response) => {
+    fetch(request)
+      .then((response) => {
         if (response.ok) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
         }
         return response;
-      }).catch(() => cached)
-    )
+      })
+      .catch(() => caches.match(request))
   );
 });

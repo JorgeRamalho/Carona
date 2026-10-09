@@ -22,6 +22,22 @@ function formatDate(iso) {
   });
 }
 
+function kmGaugeIcon() {
+  return `<svg class="km-gauge-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 25a11 11 0 0 1 22 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 25 L23 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="16" cy="25" r="2.2" fill="currentColor"/></svg>`;
+}
+
+function updateSpeedometer(kmh, ids = {}) {
+  const speed = Math.max(0, Math.round(Number(kmh) || 0));
+  const valueEl = document.getElementById(ids.value || 'visorSpeed');
+  if (valueEl) valueEl.textContent = String(speed);
+  const needle = document.getElementById(ids.needle || 'speedoNeedle');
+  if (needle) {
+    const capped = Math.min(speed, 180);
+    const deg = -90 + (capped / 180) * 180;
+    needle.setAttribute('transform', `rotate(${deg} 110 118)`);
+  }
+}
+
 function formatDuration(seconds) {
   if (!seconds && seconds !== 0) return '—';
   const total = Math.max(0, Math.round(seconds));

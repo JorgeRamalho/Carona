@@ -27,12 +27,12 @@ function resolveAppUrl(path) {
 function getRequestError(res, data) {
   if (data.error) return data.error;
   if (res.status === 404 || res.status === 405) {
-    return 'Servidor da API não encontrado. Execute "npm start" e acesse http://localhost:3000';
+    return 'Servidor da API não encontrado. Na pasta json, execute "npm start" e acesse http://localhost:3000';
   }
   if (res.status === 409) {
     return 'Este e-mail já está cadastrado. Faça login ou use outro e-mail.';
   }
-  return `Não foi possível completar a operação (código ${res.status}). Verifique se o servidor está rodando com "npm start".`;
+  return `Não foi possível completar a operação (código ${res.status}). Verifique se o servidor está rodando com "npm start" na pasta json.`;
 }
 
 const api = {
@@ -53,7 +53,7 @@ const api = {
       res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
     } catch {
       throw new Error(
-        'Não foi possível conectar ao servidor. Execute "npm start" na pasta do projeto e acesse http://localhost:3000'
+        'Não foi possível conectar ao servidor. Na pasta json, execute "npm start" e acesse http://localhost:3000'
       );
     }
 
@@ -111,6 +111,10 @@ const api = {
 
   acceptRide(id) {
     return this.request(`/api/rides/${id}/accept`, { method: 'PATCH' });
+  },
+
+  arriveRide(id) {
+    return this.request(`/api/rides/${id}/arrive`, { method: 'PATCH' });
   },
 
   startRide(id) {

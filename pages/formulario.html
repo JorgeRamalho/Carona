@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulário - Carona</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .form-container {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 520px;
+      width: 100%;
+      padding: 40px;
+    }
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .form-header h1 {
+      color: #16A34A;
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+    .form-header p {
+      color: #666;
+      font-size: 1rem;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .form-group label span {
+      color: #DC2626;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #E5E7EB;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #22C55E;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    .form-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .form-checkbox input {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .form-checkbox label {
+      font-size: 0.9rem;
+      color: #555;
+      cursor: pointer;
+    }
+    .form-checkbox label a {
+      color: #22C55E;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-align: center;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      color: #fff;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+    }
+    .btn-secondary {
+      background: #F3F4F6;
+      color: #333;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .btn-secondary:hover {
+      background: #E5E7EB;
+    }
+    .form-feedback {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.95rem;
+      display: none;
+    }
+    .form-feedback.success {
+      background: #DCFCE7;
+      color: #166534;
+      display: block;
+    }
+    .form-feedback.error {
+      background: #FEE2E2;
+      color: #991B1B;
+      display: block;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #22C55E;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 600px) {
+      .form-container { padding: 25px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="form-header">
+      <h1>📝 Cadastro</h1>
+      <p>Preencha seus dados abaixo para começar</p>
+    </div>
+
+    <form id="formCadastro" novalidate>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nome">Nome completo <span>*</span></label>
+          <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+        </div>
+        <div class="form-group">
+          <label for="email">E-mail <span>*</span></label>
+          <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="telefone">Telefone <span>*</span></label>
+          <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
+        </div>
+        <div class="form-group">
+          <label for="cpf">CPF <span>*</span></label>
+          <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="senha">Senha <span>*</span></label>
+          <input type="password" id="senha" name="senha" placeholder="Mínimo 8 caracteres" required minlength="8">
+        </div>
+        <div class="form-group">
+          <label for="confirmar">Confirmar senha <span>*</span></label>
+          <input type="password" id="confirmar" name="confirmar" placeholder="Repita a senha" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="cidade">Cidade <span>*</span></label>
+        <input type="text" id="cidade" name="cidade" placeholder="Sua cidade" required>
+      </div>
+
+      <div class="form-group">
+        <label for="mensagem">Mensagem (opcional)</label>
+        <textarea id="mensagem" name="mensagem" placeholder="Conte um pouco sobre você..."></textarea>
+      </div>
+
+      <div class="form-checkbox">
+        <input type="checkbox" id="termos" name="termos" required>
+        <label for="termos">Li e aceito os <a href="/termos.html" target="_blank">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank">Política de Privacidade</a> <span>*</span></label>
+      </div>
+
+      <button type="submit" class="btn btn-primary">🎉 Cadastrar</button>
+      <button type="reset" class="btn btn-secondary">Limpar formulário</button>
+
+      <p class="form-feedback" id="formFeedback" role="status" aria-live="polite"></p>
+
+      <a href="/" class="back-link">← Voltar para o site</a>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('formCadastro');
+    const feedback = document.getElementById('formFeedback');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      feedback.className = 'form-feedback';
+
+      const senha = document.getElementById('senha').value;
+      const confirmar = document.getElementById('confirmar').value;
+
+      if (senha !== confirmar) {
+        feedback.textContent = 'As senhas não coincidem.';
+        feedback.classList.add('error');
+        return;
+      }
+
+      if (!form.checkValidity()) {
+        feedback.textContent = 'Preencha todos os campos obrigatórios.';
+        feedback.classList.add('error');
+        return;
+      }
+
+      feedback.textContent = 'Cadastro realizado com sucesso! 🎉';
+      feedback.classList.add('success');
+      form.reset();
+    });
+
+    form.addEventListener('reset', function () {
+      feedback.className = 'form-feedback';
+    });
+  </script>
+</body>
+</html>

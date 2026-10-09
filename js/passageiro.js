@@ -560,7 +560,8 @@ function renderActiveRide(rides) {
     </div>
     ${active.motoristaNome
       ? `<p class="active-driver">🚙 Motorista: <strong>${active.motoristaNome}</strong>${active.motoristaRating?.media ? ` · ${active.motoristaRating.label}` : ''}</p>
-         ${active.motoristaVeiculo ? `<p class="active-driver">🚗 ${active.motoristaVeiculo.modelo || ''} · ${active.motoristaVeiculo.cor || ''} · ${active.motoristaVeiculo.placa || ''}</p>` : ''}`
+         ${active.motoristaVeiculo ? `<p class="active-driver">🚗 ${active.motoristaVeiculo.modelo || ''} · ${active.motoristaVeiculo.cor || ''} · ${active.motoristaVeiculo.placa || ''}</p>` : ''}
+         ${active.chegadaEm && active.status === 'aceita' ? '<p class="active-driver">📍 Motorista no local de embarque</p>' : ''}`
       : '<p class="active-driver">⏳ Procurando motorista online...</p>'}
     <p class="active-driver">💳 Pagamento: <strong>${PAYMENT_LABELS[active.pagamento] || active.pagamento || 'Pix'}</strong></p>
     ${active.mapsUrl ? `<a href="${active.mapsUrl}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">🗺️ Abrir rota no Google Maps</a>` : ''}

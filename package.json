@@ -2,10 +2,11 @@
   "name": "carona",
   "version": "1.0.0",
   "description": "Carona — App 100% brasileiro. Mais barato que ônibus.",
-  "main": "server.js",
+  "private": true,
+  "main": "js/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node js/server.js",
+    "dev": "node js/server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

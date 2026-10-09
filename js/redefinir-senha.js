@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       await api.resetPassword(token, senha);
       showFeedback(feedback, '✅ Senha redefinida com sucesso! Redirecionando...', 'success');
-      setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+      setTimeout(() => { window.location.href = '/login.html'; }, 1500);
     } catch (err) {
       showFeedback(feedback, err.message, 'error');
       btn.disabled = false;

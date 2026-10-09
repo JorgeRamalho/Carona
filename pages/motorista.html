@@ -1,36 +1,43 @@
 ﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <script>
+    (function () {
+      if (location.protocol !== 'file:') return;
+      var target = 'http://localhost:3000/motorista.html' + (location.search || '') + (location.hash || '');
+      location.replace(target);
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#22C55E">
+  <meta name="theme-color" content="#0B1220">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Carona">
+  <meta name="apple-mobile-web-app-title" content="Carona Motorista">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
   <link rel="apple-touch-icon" href="/assets/icon-192.png">
-  <title>Painel do Motorista — Carona</title>
+  <title>Visor do Motorista — Carona</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="accessibility.css">
-  <link rel="stylesheet" href="dashboard.css?v=2">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/accessibility.css">
+  <link rel="stylesheet" href="/css/dashboard.css?v=8">
 </head>
-<body class="dashboard-page">
+<body class="dashboard-page driver-dashboard">
 
   <aside class="sidebar" id="sidebar">
     <a href="/" class="logo sidebar-logo">
       <span class="logo-icon">🚗</span>
       <span class="logo-text">
         <strong>Carona</strong>
-        <small>Mais barato que ônibus.</small>
+        <small>App do motorista</small>
         <small class="logo-tagline">🇧🇷 100% brasileiro</small>
       </span>
     </a>
     <nav class="sidebar-nav">
-      <button class="sidebar-link active" data-panel="corridas">🚕 Corridas disponíveis</button>
+      <button class="sidebar-link active" data-panel="corridas">📱 Visor da corrida</button>
       <button class="sidebar-link" data-panel="minhas">📋 Minhas corridas</button>
       <button class="sidebar-link" data-panel="ganhos">💰 Meus ganhos</button>
       <button class="sidebar-link" data-panel="perfil">👤 Meu perfil</button>
@@ -39,12 +46,12 @@
     <button class="btn btn-logout" id="logoutBtn">🚪 Sair</button>
   </aside>
 
-  <main class="dashboard-main">
+  <main class="dashboard-main" id="driverMain">
     <header class="dashboard-header">
       <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">☰</button>
       <div class="header-greeting">
         <h1>Olá, <span id="userName">Motorista</span>! 🚙</h1>
-        <p>App <strong>100% brasileiro</strong> — você fica com <strong>95%</strong> de cada corrida</p>
+        <p>Visor digital no celular — aceite, navegue e finalize como na Uber, 99 e InDrive</p>
       </div>
       <div class="online-toggle">
         <span id="onlineLabel">Offline</span>
@@ -55,7 +62,6 @@
       </div>
     </header>
 
-    <!-- Stats -->
     <div class="stats-row" id="statsRow">
       <div class="stat-card highlight">
         <span class="stat-card-icon">💰</span>
@@ -72,33 +78,71 @@
         </div>
       </div>
       <div class="stat-card">
-        <span class="stat-card-icon">📊</span>
+        <span class="stat-card-icon speedo-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M8 38a16 16 0 0 1 32 0" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M24 38 L35 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="38" r="3.2" fill="currentColor"/></svg>
+        </span>
         <div>
-          <span class="stat-card-value">5%</span>
-          <span class="stat-card-label">Taxa da plataforma</span>
+          <span class="stat-card-value" id="statKm">0 km</span>
+          <span class="stat-card-label">Km rodados</span>
         </div>
       </div>
       <div class="stat-card">
-        <span class="stat-card-icon">🎯</span>
+        <span class="stat-card-icon">📡</span>
         <div>
           <span class="stat-card-value" id="statDisponiveis">0</span>
-          <span class="stat-card-label">Disponíveis agora</span>
+          <span class="stat-card-label">Chamadas na praça</span>
         </div>
       </div>
     </div>
 
-    <!-- Panel: Corridas disponíveis -->
     <section class="panel active" id="panel-corridas">
-      <div class="panel-card">
-        <h2>🚕 Corridas disponíveis</h2>
-        <p class="panel-desc">Aceite corridas e ganhe 95% do valor. A plataforma fica com apenas 5%.</p>
+      <div class="driver-visor" id="driverVisor">
+        <div id="driverHudMap" class="driver-visor-map" role="img" aria-label="Mapa de navegação do motorista"></div>
+
+        <div class="visor-hud-top">
+          <div class="visor-chip" id="visorClock">--:--</div>
+          <div class="visor-chip visor-chip-status" id="visorOnlineChip">Offline</div>
+          <div class="visor-chip visor-chip-earn" id="visorTodayEarn">Hoje R$ 0,00</div>
+        </div>
+
+        <div class="speedo speedo-hud" id="visorSpeedWrap" aria-live="polite">
+          <svg class="speedo-dial" viewBox="0 0 220 148" role="img" aria-label="Velocímetro">
+            <path class="speedo-track" d="M30 118 A80 80 0 0 1 190 118" fill="none"/>
+            <path class="speedo-arc" d="M30 118 A80 80 0 0 1 190 118" fill="none"/>
+            <text class="speedo-tick-label" x="22" y="136">0</text>
+            <text class="speedo-tick-label" x="58" y="56">60</text>
+            <text class="speedo-tick-label" x="100" y="30">90</text>
+            <text class="speedo-tick-label" x="148" y="56">120</text>
+            <text class="speedo-tick-label" x="188" y="136">180</text>
+            <g id="speedoNeedle" transform="rotate(-90 110 118)">
+              <polygon points="110,42 105,118 115,118"/>
+              <circle cx="110" cy="118" r="8"/>
+            </g>
+          </svg>
+          <div class="speedo-readout">
+            <strong id="visorSpeed">0</strong>
+            <span>km/h</span>
+          </div>
+        </div>
+
+        <div class="visor-idle" id="visorIdle">
+          <div class="visor-radar" aria-hidden="true"><span></span></div>
+          <h2 id="visorIdleTitle">Fique online</h2>
+          <p id="visorIdleText">Ative o status para receber chamadas de corrida no visor, como nos apps de mobilidade.</p>
+        </div>
+
+        <div class="visor-sheet" id="visorSheet" hidden></div>
+      </div>
+
+      <div class="panel-card visor-queue-card">
+        <h2>🚕 Fila da praça</h2>
+        <p class="panel-desc">Corridas abertas na região. O chamado também aparece no visor com alarme e contagem.</p>
         <div class="rides-list" id="availableRides">
           <p class="empty-state">Nenhuma corrida disponível no momento. Fique online! 📡</p>
         </div>
       </div>
     </section>
 
-    <!-- Panel: Minhas corridas -->
     <section class="panel" id="panel-minhas">
       <div class="panel-card map-card" id="driverRouteCard" hidden>
         <h2>🗺️ Melhor rota — Google Maps</h2>
@@ -114,7 +158,6 @@
       </div>
     </section>
 
-    <!-- Panel: Ganhos -->
     <section class="panel" id="panel-ganhos">
       <div class="panel-card earnings-card">
         <h2>💰 Resumo de ganhos</h2>
@@ -126,6 +169,10 @@
           <div class="earnings-row">
             <span>Corridas concluídas</span>
             <strong id="earningsCount">0</strong>
+          </div>
+          <div class="earnings-row">
+            <span>Km rodados</span>
+            <strong id="earningsKm">0 km</strong>
           </div>
           <div class="earnings-row">
             <span>Taxa paga à plataforma (5%)</span>
@@ -142,7 +189,6 @@
       </div>
     </section>
 
-    <!-- Panel: Perfil -->
     <section class="panel" id="panel-perfil">
       <div class="panel-card">
         <h2>👤 Meu perfil</h2>
@@ -151,22 +197,45 @@
     </section>
   </main>
 
-  <div class="estimate-modal" id="offerModal" hidden aria-hidden="true">
-    <div class="estimate-modal-backdrop" id="offerModalBackdrop"></div>
-    <div class="estimate-modal-window offer-modal-window" role="dialog" aria-labelledby="offerModalTitle" aria-modal="true">
+  <div class="incoming-call" id="offerModal" hidden aria-hidden="true">
+    <div class="incoming-call-backdrop" id="offerModalBackdrop"></div>
+    <div class="incoming-call-window" role="dialog" aria-labelledby="offerModalTitle" aria-modal="true">
+      <div class="incoming-call-map-wrap">
+        <div id="offerModalMap" class="route-map incoming-call-map"></div>
+        <div class="incoming-countdown" id="offerCountdownWrap">
+          <svg viewBox="0 0 80 80" aria-hidden="true">
+            <circle class="incoming-countdown-bg" cx="40" cy="40" r="34"></circle>
+            <circle class="incoming-countdown-fg" id="offerCountdownRing" cx="40" cy="40" r="34"></circle>
+          </svg>
+          <strong id="offerCountdown">15</strong>
+        </div>
+      </div>
+      <header class="incoming-call-header">
+        <p class="incoming-call-pulse">📞 Chamada de corrida</p>
+        <h2 id="offerModalTitle">Nova solicitação</h2>
+      </header>
+      <div class="incoming-call-body" id="offerModalBody"></div>
+      <footer class="incoming-call-footer">
+        <button type="button" class="btn btn-danger" id="declineOfferBtn">⏭️ Recusar</button>
+        <button type="button" class="btn btn-primary incoming-accept" id="acceptOfferBtn">✅ Aceitar corrida</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="estimate-modal" id="receiptModal" hidden aria-hidden="true">
+    <div class="estimate-modal-backdrop" id="receiptModalBackdrop"></div>
+    <div class="estimate-modal-window receipt-window" role="dialog" aria-labelledby="receiptModalTitle" aria-modal="true">
       <header class="estimate-modal-header">
         <div>
-          <h2 id="offerModalTitle">🚕 Oferta de corrida</h2>
-          <p>Passageiro solicitou — aceite para fazer o matching</p>
+          <h2 id="receiptModalTitle">🧾 Corrida finalizada</h2>
+          <p>Resumo do percurso, km rodados e pagamento</p>
         </div>
+        <button type="button" class="estimate-modal-close" id="closeReceiptModal" aria-label="Fechar">×</button>
       </header>
-      <div class="estimate-modal-map-wrap">
-        <div id="offerModalMap" class="route-map estimate-modal-map"></div>
-      </div>
-      <div class="estimate-modal-body" id="offerModalBody"></div>
+      <div class="estimate-modal-body" id="receiptModalBody"></div>
       <footer class="estimate-modal-footer">
-        <button type="button" class="btn btn-danger" id="declineOfferBtn">⏭️ Recusar</button>
-        <button type="button" class="btn btn-primary" id="acceptOfferBtn">✅ Aceitar corrida</button>
+        <button type="button" class="btn btn-secondary" id="closeReceiptBtn">Fechar</button>
+        <button type="button" class="btn btn-primary" id="receiptRateBtn">⭐ Avaliar passageiro</button>
       </footer>
     </div>
   </div>
@@ -198,13 +267,13 @@
     </div>
   </div>
 
-  <script src="js/api.js?v=4"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/maps.js?v=5"></script>
-  <script src="js/profile.js"></script>
-  <script src="js/pwa.js?v=4"></script>
-  <script src="js/motorista.js?v=5"></script>
-  <script src="js/accessibility.js?v=2"></script>
+  <script src="/js/api.js?v=8"></script>
+  <script src="/js/auth.js?v=8"></script>
+  <script src="/js/utils.js?v=8"></script>
+  <script src="/js/maps.js?v=8"></script>
+  <script src="/js/profile.js?v=8"></script>
+  <script src="/js/pwa.js?v=8"></script>
+  <script src="/js/motorista.js?v=8"></script>
+  <script src="/js/accessibility.js?v=8"></script>
 </body>
 </html>

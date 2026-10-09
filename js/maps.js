@@ -2,12 +2,29 @@ const caronaMaps = {
   config: null,
   map: null,
   modalMap: null,
+  hudMap: null,
+  navMap: null,
   modalDirectionsRenderer: null,
+  navDirectionsRenderer: null,
+  navDriverMarker: null,
+  lastNavRequest: '',
   markers: [],
   modalMarkers: [],
+  hudMarkers: [],
   polyline: null,
   modalPolyline: null,
+  hudPolyline: null,
   scriptPromise: null,
+
+  instanceKeys(instance) {
+    if (instance === 'modal') {
+      return { mapKey: 'modalMap', markerKey: 'modalMarkers', polylineKey: 'modalPolyline', target: 'modal' };
+    }
+    if (instance === 'hud') {
+      return { mapKey: 'hudMap', markerKey: 'hudMarkers', polylineKey: 'hudPolyline', target: 'hud' };
+    }
+    return { mapKey: 'map', markerKey: 'markers', polylineKey: 'polyline', target: 'main' };
+  },
 
   async init() {
     if (this.config) return this.config;
@@ -55,33 +72,32 @@ const caronaMaps = {
   },
 
   clearMap(target = 'main') {
-    const isModal = target === 'modal';
-    const markers = isModal ? this.modalMarkers : this.markers;
-    const polyline = isModal ? this.modalPolyline : this.polyline;
+    const { markerKey, polylineKey } = this.instanceKeys(target === 'modal' || target === 'hud' ? target : 'main');
+    const markers = this[markerKey] || [];
+    const polyline = this[polylineKey];
 
     markers.forEach((marker) => marker.setMap(null));
-    if (isModal) this.modalMarkers = [];
-    else this.markers = [];
+    this[markerKey] = [];
 
     if (polyline) {
       polyline.setMap(null);
-      if (isModal) this.modalPolyline = null;
-      else this.polyline = null;
+      this[polylineKey] = null;
     }
   },
 
   renderRoute(containerId, routeData, options = {}) {
-    const isModal = options.instance === 'modal';
-    const mapKey = isModal ? 'modalMap' : 'map';
-    const markerKey = isModal ? 'modalMarkers' : 'markers';
-    const polylineKey = isModal ? 'modalPolyline' : 'polyline';
-    const target = isModal ? 'modal' : 'main';
+    const { mapKey, markerKey, polylineKey, target } = this.instanceKeys(options.instance);
+    const isModal = target === 'modal';
     const container = document.getElementById(containerId);
     if (!container || !routeData) return;
 
     container.hidden = false;
 
     if (!this.config?.enabled || !window.google?.maps) {
+      if (target === 'hud') {
+        container.innerHTML = '';
+        return;
+      }
       container.innerHTML = `
         <div class="map-fallback">
           <p>🗺️ Rota calculada${routeData.mapsFonte === 'google' ? ' pelo Google Maps' : ''}</p>
@@ -99,7 +115,8 @@ const caronaMaps = {
         zoom: 12,
         mapTypeControl: false,
         streetViewControl: false,
-        fullscreenControl: !isModal
+        fullscreenControl: target === 'main',
+        zoomControl: target !== 'hud'
       });
     }
 
@@ -146,7 +163,7 @@ const caronaMaps = {
       this[mapKey].fitBounds(bounds, 48);
     }
 
-    if (isModal && window.google?.maps) {
+    if ((isModal || target === 'hud') && window.google?.maps) {
       setTimeout(() => google.maps.event.trigger(this[mapKey], 'resize'), 200);
     }
 
@@ -264,6 +281,124 @@ const caronaMaps = {
 
     if (this.config?.enabled && drawInteractiveRoute()) return;
     this.renderEmbedMap(container, origem, destino);
+  },
+
+  setNavDriverMarker(coords) {
+    if (!this.navMap || !window.google?.maps || !coords) return;
+    const position = { lat: Number(coords.lat), lng: Number(coords.lng) };
+    if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) return;
+    if (!this.navDriverMarker) {
+      this.navDriverMarker = new google.maps.Marker({
+        map: this.navMap,
+        position,
+        title: 'Você',
+        zIndex: 999
+      });
+      return;
+    }
+    this.navDriverMarker.setPosition(position);
+  },
+
+  renderNavRoute(containerId, origin, destination, options = {}) {
+    const container = document.getElementById(containerId);
+    if (!container || !origin || !destination) return;
+
+    container.hidden = false;
+    const requestKey = `${origin}|${destination}`;
+    const alreadyDrawn = requestKey === this.lastNavRequest && this.navMap && this.navMap.getDiv() === container;
+
+    if (alreadyDrawn && !options.force) {
+      if (options.driverCoords) this.setNavDriverMarker(options.driverCoords);
+      return;
+    }
+
+    if (!this.config?.enabled || !window.google?.maps) {
+      this.renderEmbedMap(container, origin, destination);
+      return;
+    }
+
+    if (!this.navMap || this.navMap.getDiv() !== container) {
+      container.innerHTML = '';
+      this.navMap = new google.maps.Map(container, {
+        center: { lat: -25.4284, lng: -49.2733 },
+        zoom: 14,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true,
+        zoomControl: true
+      });
+      this.navDirectionsRenderer = new google.maps.DirectionsRenderer({
+        map: this.navMap,
+        suppressMarkers: false,
+        polylineOptions: {
+          strokeColor: '#22C55E',
+          strokeOpacity: 0.95,
+          strokeWeight: 6
+        }
+      });
+      this.navDriverMarker = null;
+    }
+
+    this.lastNavRequest = requestKey;
+    const service = new google.maps.DirectionsService();
+    service.route(
+      {
+        origin,
+        destination,
+        travelMode: google.maps.TravelMode.DRIVING
+      },
+      (result, status) => {
+        if (status === 'OK') {
+          this.navDirectionsRenderer.setDirections(result);
+          const leg = result.routes[0]?.legs?.[0];
+          if (typeof options.onRoute === 'function' && leg) {
+            options.onRoute({
+              distanciaKm: +(leg.distance.value / 1000).toFixed(1),
+              duracaoSegundos: leg.duration.value,
+              duracaoTexto: leg.duration.text
+            });
+          }
+          if (options.driverCoords) this.setNavDriverMarker(options.driverCoords);
+          setTimeout(() => google.maps.event.trigger(this.navMap, 'resize'), 150);
+          return;
+        }
+        this.lastNavRequest = '';
+        this.renderEmbedMap(container, origin, destination);
+      }
+    );
+  },
+
+  showLocation(containerId, coords = { lat: -25.4284, lng: -49.2733 }) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.hidden = false;
+
+    if (!this.config?.enabled || !window.google?.maps) {
+      container.innerHTML = '';
+      return;
+    }
+
+    if (!this.hudMap || this.hudMap.getDiv() !== container) {
+      container.innerHTML = '';
+      this.hudMap = new google.maps.Map(container, {
+        center: coords,
+        zoom: 15,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        zoomControl: false
+      });
+    } else {
+      this.hudMap.setCenter(coords);
+    }
+
+    this.clearMap('hud');
+    this.hudMarkers.push(new google.maps.Marker({
+      map: this.hudMap,
+      position: coords,
+      title: 'Você'
+    }));
+    setTimeout(() => google.maps.event.trigger(this.hudMap, 'resize'), 200);
   }
 };
 

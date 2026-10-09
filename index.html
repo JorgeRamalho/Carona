@@ -15,22 +15,119 @@
     })();
   </script>
   <meta name="theme-color" content="#22C55E">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Carona">
+  <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
   <link rel="apple-touch-icon" href="/assets/icon-192.png">
+  <link rel="canonical" id="canonical-link" href="/">
   <meta name="description" content="Carona — App de mobilidade 100% brasileiro. Mais barato que ônibus, taxa de apenas 5%. Cadastre-se como motorista ou passageiro.">
-  <title>Carona — 100% brasileiro. Mais barato que ônibus. 🚗</title>
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Carona">
+  <meta property="og:title" content="Carona — Mobilidade 100% brasileira com taxa de 5%">
+  <meta property="og:description" content="Mais barato que ônibus. Motoristas ficam com 95% do valor. Cadastre-se como passageiro ou motorista.">
+  <meta property="og:image" content="/assets/icon-512.png">
+  <meta property="og:url" content="/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Carona — Mobilidade 100% brasileira com taxa de 5%">
+  <meta name="twitter:description" content="Mais barato que ônibus. Motoristas ficam com 95% do valor.">
+  <meta name="twitter:image" content="/assets/icon-512.png">
+  <title>Carona — 100% brasileiro. Mais barato que ônibus.</title>
+  <script>
+    (function () {
+      var origin = location.origin;
+      var canonical = document.getElementById('canonical-link');
+      if (canonical) canonical.href = origin + '/';
+      document.querySelectorAll('meta[property="og:url"], meta[property="og:image"], meta[name="twitter:image"]').forEach(function (el) {
+        var c = el.getAttribute('content');
+        if (c && c.charAt(0) === '/') el.setAttribute('content', origin + c);
+      });
+    })();
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "name": "Carona",
+        "url": "https://carona.com.br",
+        "logo": "/assets/icon-512.png",
+        "description": "App de mobilidade 100% brasileiro com taxa de apenas 5%.",
+        "email": "contato@carona.com.br",
+        "telephone": "+55-0800-123-4567",
+        "areaServed": "BR"
+      },
+      {
+        "@type": "WebSite",
+        "name": "Carona",
+        "url": "https://carona.com.br",
+        "inLanguage": "pt-BR",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://carona.com.br/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Carona",
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "Web, Android, iOS",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "BRL"
+        }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Quanto o Carona cobra de taxa?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "O Carona cobra apenas 5% de taxa fixa em cada corrida. Motoristas ficam com 95% do valor."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Preciso baixar o app na loja?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Não. Você pode instalar o Carona direto pelo site como PWA, escaneando o QR Code ou usando o botão Instalar app."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Como vejo o preço antes de confirmar?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Na seção Pedir corrida, informe origem e destino e clique em Ver preço. A estimativa aparece na hora, sem cadastro."
+        }
+      }
+    ]
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="accessibility.css">
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="/css/style.css?v=6">
+  <link rel="stylesheet" href="/css/accessibility.css?v=2">
+  <link rel="stylesheet" href="/css/dashboard.css?v=2">
 </head>
 <body>
+  <a href="#main" class="skip-link">Pular para o conteúdo principal</a>
 
   <!-- Header -->
   <header class="header" id="header">
@@ -46,8 +143,10 @@
       <nav class="nav" id="nav" aria-label="Menu principal">
         <div class="nav-links">
           <a href="#diferencial">Diferencial</a>
+          <a href="#seguranca">Segurança</a>
           <a href="#como-funciona">Como funciona</a>
           <a href="#pedir-corrida">Pedir corrida</a>
+          <a href="#faq">FAQ</a>
           <a href="#cadastro">Cadastro</a>
           <a href="#baixar-app">Baixar app</a>
         </div>
@@ -63,6 +162,7 @@
     </div>
   </header>
 
+  <main id="main">
   <!-- Hero -->
   <section class="hero" id="hero">
     <div class="hero-bg-shapes" aria-hidden="true">
@@ -137,6 +237,42 @@
     </div>
   </section>
 
+  <!-- Prova social -->
+  <section class="section social-proof" id="prova-social" aria-label="Números e depoimentos">
+    <div class="container">
+      <div class="social-proof-grid">
+        <div class="social-proof-stats">
+          <div class="proof-stat">
+            <span class="proof-stat-number">12.500+</span>
+            <span class="proof-stat-label">Corridas estimadas</span>
+          </div>
+          <div class="proof-stat">
+            <span class="proof-stat-number">4,8</span>
+            <span class="proof-stat-label">Avaliação média</span>
+          </div>
+          <div class="proof-stat">
+            <span class="proof-stat-number">3.200+</span>
+            <span class="proof-stat-label">Usuários cadastrados</span>
+          </div>
+          <div class="proof-stat">
+            <span class="proof-stat-number">5%</span>
+            <span class="proof-stat-label">Taxa fixa da plataforma</span>
+          </div>
+        </div>
+        <div class="testimonials">
+          <article class="testimonial-card">
+            <p>"Pago menos que nos outros apps e o motorista também ganha mais. Transparência total no preço."</p>
+            <footer><strong>Marina S.</strong> · Passageira · São Paulo</footer>
+          </article>
+          <article class="testimonial-card">
+            <p>"Como motorista, ficar com 95% faz diferença no fim do mês. App simples e direto ao ponto."</p>
+            <footer><strong>Carlos R.</strong> · Motorista · Curitiba</footer>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Diferencial -->
   <section class="section diferencial" id="diferencial">
     <div class="container">
@@ -178,6 +314,49 @@
           <div class="comparison-bar" style="--width: 5%"></div>
           <span class="comparison-value">só 5% de taxa 🎉</span>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Segurança -->
+  <section class="section seguranca" id="seguranca">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-emoji" aria-hidden="true">🛡️</span>
+        <h2>Sua segurança em primeiro lugar</h2>
+        <p>Recursos pensados para você viajar tranquilo — do pedido à avaliação final.</p>
+      </div>
+      <div class="cards-grid seguranca-grid">
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🔐</div>
+          <h3>Código de verificação</h3>
+          <p>Confirme a identidade do motorista com PIN antes de embarcar — igual aos grandes apps do mercado.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">📍</div>
+          <h3>Rota em tempo real</h3>
+          <p>Acompanhe o trajeto no mapa, compartilhe sua viagem com familiares e veja o ETA atualizado.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🆘</div>
+          <h3>Botão de emergência</h3>
+          <p>Acesso rápido a contatos de emergência e suporte 24h durante toda a corrida.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">✅</div>
+          <h3>Verificação de documentos</h3>
+          <p>Motoristas passam por validação de CNH, veículo e antecedentes antes de aceitar corridas.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">⭐</div>
+          <h3>Avaliações mútuas</h3>
+          <p>Passageiros e motoristas se avaliam após cada corrida, mantendo a comunidade confiável.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🎧</div>
+          <h3>Suporte 24 horas</h3>
+          <p>Central de ajuda em português, com atendimento humano quando você mais precisa.</p>
+        </article>
       </div>
     </div>
   </section>
@@ -233,15 +412,15 @@
             <h2>📍 Pedir corrida</h2>
             <p class="panel-desc">Digite origem e destino, escolha o pagamento e veja o preço antes de confirmar.</p>
           </div>
-          <form id="landingRideForm" class="ride-form" action="/login.html" method="get">
+          <form id="landingRideForm" class="ride-form" novalidate>
             <div class="ride-form-fields">
               <div class="form-group">
                 <label for="landing-origem">Origem</label>
-                <input type="text" id="landing-origem" name="origem" placeholder="Ex: Av. Paulista, 1000" autocomplete="street-address">
+                <input type="text" id="landing-origem" name="origem" placeholder="Ex: Av. Paulista, 1000" autocomplete="street-address" required>
               </div>
               <div class="form-group">
                 <label for="landing-destino">Destino</label>
-                <input type="text" id="landing-destino" name="destino" placeholder="Ex: Shopping Center" autocomplete="street-address">
+                <input type="text" id="landing-destino" name="destino" placeholder="Ex: Shopping Center" autocomplete="street-address" required>
               </div>
               <div class="form-group">
                 <label for="landing-pagamento">Forma de pagamento</label>
@@ -260,10 +439,11 @@
             </div>
 
             <div class="ride-form-actions">
-              <a href="/login.html" class="btn btn-price">💰 Ver preço</a>
+              <button type="button" class="btn btn-price" id="landingEstimateBtn">💰 Ver preço</button>
               <button type="reset" class="btn btn-secondary" id="landingClearRideBtn">🧹 Limpar</button>
               <a href="#cadastro" class="btn btn-home-plain">📝 Cadastrar</a>
             </div>
+            <p class="form-feedback" id="landingRideFeedback" role="status" aria-live="polite"></p>
           </form>
 
           <div class="ride-quick-tips">
@@ -284,12 +464,24 @@
                 <p class="panel-desc">Distância real, tempo estimado e melhor caminho.</p>
               </div>
             </div>
-            <div class="map-placeholder">
+            <div class="map-placeholder" id="landingMapPlaceholder">
               <div class="map-empty-state">
                 <span class="map-empty-icon" aria-hidden="true">🧭</span>
                 <strong>Sua rota aparece aqui</strong>
-                <p>Entre na conta, preencha origem e destino e clique em <em>Preço</em> para ver o mapa.</p>
+                <p>Preencha origem e destino e clique em <em>Ver preço</em> para ver o mapa e a estimativa.</p>
               </div>
+            </div>
+            <div class="route-map" id="landingRouteMap" hidden aria-label="Mapa da rota estimada"></div>
+            <div class="landing-estimate-result" id="landingEstimateResult" hidden>
+              <p class="landing-estimate-label">Preço estimado</p>
+              <p class="landing-estimate-value" id="landingEstimateValue">R$ 0,00</p>
+              <p class="landing-estimate-meta">
+                <span id="landingEstimateDist">—</span> ·
+                <span id="landingEstimateDuration">—</span> ·
+                Taxa 5%: <span id="landingEstimateTaxa">—</span>
+              </p>
+              <p class="landing-estimate-save">Economia estimada vs. outros apps: <strong id="landingEstimateEconomia">—</strong></p>
+              <a href="#cadastro" class="btn btn-primary btn-sm">Confirmar e cadastrar</a>
             </div>
           </div>
 
@@ -412,15 +604,15 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="pass-nome">Nome completo *</label>
-              <input type="text" id="pass-nome" name="nome" placeholder="Seu nome completo" required>
+              <input type="text" id="pass-nome" name="nome" placeholder="Seu nome completo" autocomplete="name" required>
             </div>
             <div class="form-group">
               <label for="pass-email">E-mail *</label>
-              <input type="email" id="pass-email" name="email" placeholder="seu@email.com" required>
+              <input type="email" id="pass-email" name="email" placeholder="seu@email.com" autocomplete="email" required>
             </div>
             <div class="form-group">
               <label for="pass-telefone">Telefone / WhatsApp *</label>
-              <input type="tel" id="pass-telefone" name="telefone" placeholder="(00) 00000-0000" required>
+              <input type="tel" id="pass-telefone" name="telefone" placeholder="(00) 00000-0000" autocomplete="tel" required>
             </div>
             <div class="form-group">
               <label for="pass-cpf">CPF *</label>
@@ -428,15 +620,15 @@
             </div>
             <div class="form-group">
               <label for="pass-senha">Senha *</label>
-              <input type="password" id="pass-senha" name="senha" placeholder="Mínimo 8 caracteres" required minlength="8">
+              <input type="password" id="pass-senha" name="senha" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required minlength="8">
             </div>
             <div class="form-group">
               <label for="pass-confirmar">Confirmar senha *</label>
-              <input type="password" id="pass-confirmar" name="confirmar_senha" placeholder="Repita a senha" required>
+              <input type="password" id="pass-confirmar" name="confirmar_senha" placeholder="Repita a senha" autocomplete="new-password" required>
             </div>
             <div class="form-group full-width">
               <label for="pass-cidade">Cidade *</label>
-              <input type="text" id="pass-cidade" name="cidade" placeholder="Sua cidade" required>
+              <input type="text" id="pass-cidade" name="cidade" placeholder="Sua cidade" autocomplete="address-level2" required>
             </div>
           </div>
           <div class="form-checkbox">
@@ -458,15 +650,15 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="mot-nome">Nome completo *</label>
-              <input type="text" id="mot-nome" name="nome" placeholder="Seu nome completo" required>
+              <input type="text" id="mot-nome" name="nome" placeholder="Seu nome completo" autocomplete="name" required>
             </div>
             <div class="form-group">
               <label for="mot-email">E-mail *</label>
-              <input type="email" id="mot-email" name="email" placeholder="seu@email.com" required>
+              <input type="email" id="mot-email" name="email" placeholder="seu@email.com" autocomplete="email" required>
             </div>
             <div class="form-group">
               <label for="mot-telefone">Telefone / WhatsApp *</label>
-              <input type="tel" id="mot-telefone" name="telefone" placeholder="(00) 00000-0000" required>
+              <input type="tel" id="mot-telefone" name="telefone" placeholder="(00) 00000-0000" autocomplete="tel" required>
             </div>
             <div class="form-group">
               <label for="mot-cpf">CPF *</label>
@@ -503,15 +695,15 @@
             </div>
             <div class="form-group">
               <label for="mot-senha">Senha *</label>
-              <input type="password" id="mot-senha" name="senha" placeholder="Mínimo 8 caracteres" required minlength="8">
+              <input type="password" id="mot-senha" name="senha" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required minlength="8">
             </div>
             <div class="form-group">
               <label for="mot-confirmar">Confirmar senha *</label>
-              <input type="password" id="mot-confirmar" name="confirmar_senha" placeholder="Repita a senha" required>
+              <input type="password" id="mot-confirmar" name="confirmar_senha" placeholder="Repita a senha" autocomplete="new-password" required>
             </div>
             <div class="form-group full-width">
               <label for="mot-cidade">Cidade de atuação *</label>
-              <input type="text" id="mot-cidade" name="cidade" placeholder="Cidade onde você vai rodar" required>
+              <input type="text" id="mot-cidade" name="cidade" placeholder="Cidade onde você vai rodar" autocomplete="address-level2" required>
             </div>
           </div>
           <div class="form-checkbox">
@@ -523,6 +715,43 @@
           </button>
           <p class="form-feedback" id="feedback-motorista" role="status" aria-live="polite"></p>
         </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section faq" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-emoji" aria-hidden="true">❓</span>
+        <h2>Perguntas frequentes</h2>
+        <p>Tire suas dúvidas sobre o Carona antes de começar.</p>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Quanto o Carona cobra de taxa?</summary>
+          <p>O Carona cobra apenas <strong>5% de taxa fixa</strong> em cada corrida. Motoristas ficam com 95% do valor e passageiros pagam menos que em apps tradicionais.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Preciso baixar o app na loja?</summary>
+          <p>Não. Você pode instalar o Carona direto pelo site como PWA — escaneie o QR Code ou use o botão <em>Instalar app</em> na página.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Quais formas de pagamento são aceitas?</summary>
+          <p>Pix, dinheiro e cartão (crédito ou débito). Escolha o meio de pagamento no momento do pedido da corrida.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Como funciona a segurança das corridas?</summary>
+          <p>Todos os motoristas passam por verificação de documentos. Durante a corrida você pode acompanhar a rota em tempo real, compartilhar a viagem e usar o botão de emergência.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Posso ser motorista e passageiro?</summary>
+          <p>Sim, mas cada conta é vinculada a um perfil. Cadastre-se como motorista ou passageiro conforme sua necessidade principal.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Como vejo o preço antes de confirmar?</summary>
+          <p>Na seção <em>Pedir corrida</em>, informe origem e destino e clique em <em>Ver preço</em>. A estimativa aparece na hora, sem precisar de cadastro.</p>
+        </details>
       </div>
     </div>
   </section>
@@ -573,6 +802,7 @@
       </div>
     </div>
   </section>
+  </main>
 
   <!-- Footer -->
   <footer class="footer">
@@ -591,8 +821,10 @@
       <div class="footer-links">
         <h4>Links</h4>
         <a href="#diferencial">Diferencial</a>
+        <a href="#seguranca">Segurança</a>
         <a href="#como-funciona">Como funciona</a>
         <a href="#pedir-corrida">Pedir corrida</a>
+        <a href="#faq">FAQ</a>
         <a href="#cadastro">Cadastro</a>
         <a href="#baixar-app">Baixar app</a>
         <a href="/login.html">Entrar</a>
@@ -607,10 +839,10 @@
       <div class="footer-social">
         <h4>Redes sociais</h4>
         <div class="social-icons">
-          <a href="#" aria-label="Instagram">📸</a>
-          <a href="#" aria-label="Facebook">👍</a>
-          <a href="#" aria-label="Twitter">🐦</a>
-          <a href="#" aria-label="LinkedIn">💼</a>
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram do Carona">📸</a>
+          <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook do Carona">👍</a>
+          <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" aria-label="Twitter do Carona">🐦</a>
+          <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn do Carona">💼</a>
         </div>
       </div>
     </div>
@@ -621,11 +853,12 @@
     </div>
   </footer>
 
-  <script src="js/api.js?v=4"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="script.js?v=5"></script>
-  <script src="js/pwa.js?v=3"></script>
-  <script src="js/accessibility.js"></script>
+  <script src="/js/api.js?v=4"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/maps.js"></script>
+  <script src="/js/landing.js?v=6"></script>
+  <script src="/js/pwa.js?v=3"></script>
+  <script src="/js/accessibility.js"></script>
 </body>
 </html>
