@@ -1,37 +1,15 @@
-# Carona — documentação do projeto
+📌##Carona - 5% mais barato que onibus Ltda
 
-App de mobilidade web (PWA) com landing, cadastro, painéis de passageiro/motorista e API Node/Express.
+🌐 ## Site Link do projeto online: https://carona-five.vercel.app
 
-## Início rápido
+📂 ## Repositório: https://github.com//JorgeRamalho/Carona
 
-1. Copie as variáveis de ambiente:
-   ```bash
-   cp config/.env.example .env
-   ```
-2. Instale dependências na raiz do repositório:
-   ```bash
-   npm install
-   ```
-3. Inicie o servidor (porta 3000):
-   ```bash
-   npm start
-   ```
-4. Abra [http://localhost:3000](http://localhost:3000).
+💻 ## Tecnologias
 
-> Use sempre `npm start` (servidor Node). Live Server em outra porta redireciona para `:3000` para API, QR Code e PWA funcionarem.
+HTML CSS JavaScript React TypeScript Node.js 📲 ## Funcionalidades
 
-## Estrutura
+Fotos e Imagens Vídeos Layout Estilo do Site
 
-A organização de pastas e o papel de cada arquivo estão descritos em [ESTRUTURA.md](./ESTRUTURA.md).
+📠 ## Como executar git clone ... npm install npm run dev
 
-## Raiz do repositório
-
-Na raiz ficam apenas:
-
-| Item | Motivo |
-|------|--------|
-| `index.html` | Entrada pública do site (landing) |
-| `package.json` / `package-lock.json` | Ferramentas Node e dependências |
-| `.gitignore` | Regras do Git |
-
-Arquivos ocultos de ambiente (`.env`) não são versionados; o modelo está em `config/.env.example`.
+💿 ## Autor 📄Seu nome: Jorge R. Barbosa 💼 LinkedIn: https://www.linkedin.com/in/jorge-r-barbosa-aabb0417b/ 👾 GitHub: https://github.com/JorgeRamalho ☎️ Contato: 41 99143-4153
